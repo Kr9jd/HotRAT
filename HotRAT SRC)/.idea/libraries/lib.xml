@@ -1,0 +1,17 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/RemoteControl-Client/lib/thumbnailator-0.4.2-all.jar!/" />
+      <root url="jar://$PROJECT_DIR$/RemoteControl-Client/lib/bridj-0.7.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/RemoteControl-Client/lib/jna-5.11.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/RemoteControl-Client/lib/RFTX2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/RemoteControl-Client/lib/jna-platform-5.11.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/RemoteControl-Client/lib/webcam-capture-0.3.12.jar!/" />
+      <root url="jar://$PROJECT_DIR$/RemoteControl-Client/lib/slf4j-api-1.7.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/RemoteControl-Client/lib/oshi-core-6.1.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/RemoteControl-Client/lib/commons-io-2.11.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
