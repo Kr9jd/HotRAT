@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="YuanKong_jar">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/RemoteControl-Client/out/artifacts/YuanKong_jar/注入器2.0(配合koid使用).jar!/" />
+      <root url="jar://$PROJECT_DIR$/RemoteControl-Client/out/artifacts/YuanKong_jar/YuanKong.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
