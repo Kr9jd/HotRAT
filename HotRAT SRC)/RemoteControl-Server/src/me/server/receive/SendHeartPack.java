@@ -13,22 +13,18 @@ import java.util.Date;
 
 public class SendHeartPack extends Thread{
     private JFrame frame;
-    private JTextArea area;
-    private String[] context;
-    private String osName;
     private Socket socket;
     private JTable table;
     private DefaultTableModel defaultTableModel;
+    private String computerName;
     private String contexts;
-    public SendHeartPack(Socket socket, JFrame frame, JTextArea area, String osName, String[] context, JTable table, DefaultTableModel defaultTableModel,String contexts) {
+    public SendHeartPack(Socket socket, JFrame frame,JTable table, DefaultTableModel defaultTableModel,String contexts,String computerName) {
             this.frame = frame;
-            this.area = area;
-            this.context = context;
-            this.osName = osName;
             this.socket = socket;
             this.table = table;
             this.defaultTableModel = defaultTableModel;
-        this.contexts = contexts;
+            this.contexts = contexts;
+            this.computerName = computerName;
     }
 
     public void run() {
@@ -42,13 +38,12 @@ public class SendHeartPack extends Thread{
             try {
                 Date date = new Date();
                 SimpleDateFormat format = new SimpleDateFormat("hh:mm:ss");
-                String name = context[1];
                 PlayMusic.offline();
-                area.append("[" + format.format(date)  + "]" +"有主机下线请注意!" + " 主机名称:" + name + "\n");
                 Server.map.remove(contexts);
                 Server.flashTable(table,defaultTableModel);
+                Server.defaultTableModel.addRow(new String[]{format.format(date),"主机下线:" + computerName});
                 frame.repaint();
-                JOptionPane.showMessageDialog(null,name + ":主机已经下线..","提示",JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null,computerName + ":主机已经下线..","提示",JOptionPane.ERROR_MESSAGE);
             } catch (Exception var3) {
             }
         }

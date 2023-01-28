@@ -20,7 +20,7 @@ import java.util.Date;
 public class RemoteChat extends Thread{
     Socket socket;
     JTextArea jta;
-    InputStream icon = Server.class.getClassLoader().getResourceAsStream("me/resources/8.png");
+    InputStream icon = RemoteChat.class.getClassLoader().getResourceAsStream("me/resources/8.png");
     Image icons = ImageIO.read(icon);
     public RemoteChat(Socket socket,String IP) throws IOException {
         this.socket = socket;

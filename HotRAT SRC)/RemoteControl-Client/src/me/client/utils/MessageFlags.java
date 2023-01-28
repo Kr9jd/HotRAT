@@ -93,5 +93,12 @@ public class MessageFlags {
     public static final byte CLOSE_REGIDTER = 89;
     public static final byte REGIDTER_CREATE_KEY = 90;
     public static final byte REGIDTER_DELETE_KEY = 91;
+    public static final byte PICTURE_SHOW = 92;
+    public static final byte PICTURE_CLOSE = 93;
+    public static final byte FILE_DELETE_ERROR = 94;
+    public static final byte LAN_ACCESS_GET = 95;
+    public static final byte LAN_ACCESS_POST = 96;
+    public static final byte LAN_ACCESS_ERROR = 97;
+    public static final byte LAN_ACCESS_OPEN = 98;
     public static final byte RELIEVE = 100;
 }

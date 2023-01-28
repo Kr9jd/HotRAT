@@ -20,7 +20,6 @@ public class RemoteChat {
     Socket socket;
     public RemoteChat(Socket socket)throws Exception{
         this.socket = socket;
-        SendMessage.SendHead(MessageFlags.SHOW_REMOTECHAT,socket);
         jWindow = new JDialog();
         jta = new JTextArea();
         jWindow.setAlwaysOnTop(true);
@@ -56,7 +55,7 @@ public class RemoteChat {
                 jta.append(date + "\n");
                 jta.append("我: " + jtf.getText() + "\n");
                 jtf.setText("");
-                SendMessage.Send(MessageFlags.SEND_REMOTECHAT,chat.getBytes( ),socket);
+                SendMessage.Send(MessageFlags.SEND_REMOTECHAT,chat.getBytes(),socket);
             }catch (Exception e) {
             }
         });
@@ -64,9 +63,8 @@ public class RemoteChat {
     public void closeWindows() {
         jWindow.dispose();
     }
-    public void update(byte[] bytes) throws UnsupportedEncodingException {
+    public void update(byte[] bytes){
         String context = new String(bytes);
         jta.append(context + "\n");
-        System.out.println(context);
     }
 }

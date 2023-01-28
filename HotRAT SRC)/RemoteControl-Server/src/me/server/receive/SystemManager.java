@@ -34,6 +34,7 @@ public class SystemManager {
         JPanel panel = new JPanel();
         JButton button = new JButton("刷新");
         JButton button1 = new JButton("结束进程");
+
         JButton button2 = new JButton("关闭窗口");
         JButton button3 = new JButton("隐藏窗口");
         JButton button4 = new JButton("显示窗口");
@@ -60,7 +61,7 @@ public class SystemManager {
             }
         };
         defaultTableModel = new DefaultTableModel(null,new String[]{"","进程名","CPU","Memory","VSZ","RSS","PID","路径"});
-        defaultTableModel1 = new DefaultTableModel(null,new String[]{"","PID","窗口名称"});
+        defaultTableModel1 = new DefaultTableModel(null,new String[]{"","PID","窗口句柄","窗口名称"});
         defaultTableModel2 = new DefaultTableModel(null,new String[]{"","设备名称","设备信息"});
         table.setModel(defaultTableModel);
         table.setShowVerticalLines(false);
@@ -90,8 +91,9 @@ public class SystemManager {
         windowsTable.getColumnModel().getColumn(0)
                 .setCellRenderer(new ImageRendererUtils());
         windowsTable.getColumnModel().getColumn(0).setPreferredWidth(20);
-        windowsTable.getColumnModel().getColumn(1).setPreferredWidth(200);
-        windowsTable.getColumnModel().getColumn(2).setPreferredWidth(700);
+        windowsTable.getColumnModel().getColumn(1).setPreferredWidth(150);
+        windowsTable.getColumnModel().getColumn(2).setPreferredWidth(150);
+        windowsTable.getColumnModel().getColumn(3).setPreferredWidth(600);
 
         systemTable.setModel(defaultTableModel2);
         systemTable.setShowVerticalLines(false);
@@ -211,7 +213,7 @@ public class SystemManager {
     public void windowsUpdate(byte[] bytes) throws IOException {
         String context = new String(bytes);
         String[] strs = context.split("\\|");
-        Object[] objects = {image1,strs[0],strs[1]};
+        Object[] objects = {image1,strs[0],strs[1],strs[2]};
         defaultTableModel1.addRow(objects);
     }
     public void systemUpdate(byte[] bytes) throws IOException {

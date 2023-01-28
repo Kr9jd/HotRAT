@@ -10,9 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.net.Socket;
 
 public class Audio {
@@ -44,12 +42,15 @@ public class Audio {
         jDialog.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                SendMessage.SendHead(MessageFlags.AUDIO_CLOSE,socket);
-                auline.close();
+                try {
+                    SendMessage.SendHead(MessageFlags.AUDIO_CLOSE,socket);
+                    auline.close();
+                }catch (Exception e1) {
+                }
             }
         });
     }
-    public void play(byte[] bytes) throws Exception {
+    public void play(byte[] bytes){
         auline.write(bytes,0,bytes.length);
     }
     public void init() {

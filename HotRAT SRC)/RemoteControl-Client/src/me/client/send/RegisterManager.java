@@ -58,7 +58,8 @@ public class RegisterManager {
     }
     public void deleteKey(int hkey,String path) {
         Advapi32Util.registryDeleteKey(new WinReg.HKEY(hkey),path);
-        regQuery(hkey,path);
+        String lastPath = path.substring(0,path.lastIndexOf("\\"));
+        regQuery(hkey,lastPath);
     }
     public void createValue(int hkey,String path,String newValue,String type) {
         switch (type) {

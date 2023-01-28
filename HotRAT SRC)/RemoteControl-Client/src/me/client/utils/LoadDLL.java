@@ -10,24 +10,12 @@ import com.sun.jna.platform.win32.WinNT;
 
 public interface LoadDLL extends Library {
     LoadDLL instance = (LoadDLL) Native.loadLibrary("me/client/dll/CppUtils.dll", LoadDLL.class);
-    void MessageErrorYNC(WString title,WString context);
-    void MessageInformationYNC(WString title,WString context);
-    void MessageWarningYNC(WString title,WString context);
-    void MessageQuestionYNC(WString title,WString context);
-    void MessageErrorYN(WString title,WString context);
-    void MessageInformationYN(WString title,WString context);
-    void MessageWarningYN(WString title,WString context);
-    void MessageQuestionYN(WString title,WString context);
-    void MessageErrorY(WString title,WString context);
-    void MessageInformationY(WString title,WString context);
-    void MessageWarningY(WString title,WString context);
-    void MessageQuestionY(WString title,WString context);
-    void beep(NativeLong d1,NativeLong d2);
-    void killTasklist(NativeLong PID);
-    void HideFile1(WString path);
-    void StopWindowProcess(WinDef.HWND hwnd);
-    void Lock();
     WString GetKey();
     int GetWidth();
     int GetHeight();
+    int GetWindowsID(WinDef.HWND hwnd);
+    void EnableDebugPriv();
+    void ProtectProcess();
+    void RemoveProtect();
+    int KeyState();
 }

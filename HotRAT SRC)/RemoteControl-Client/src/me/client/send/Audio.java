@@ -16,7 +16,7 @@ public class Audio extends Thread{
     public Audio(Socket socket){
         this.socket = socket;
     }
-    public void open(){
+    public boolean open(){
         try {
             AudioFormat audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, 4, 44100, false);
             DataLine.Info info = new DataLine.Info(TargetDataLine.class, audioFormat);
@@ -24,12 +24,11 @@ public class Audio extends Thread{
             mic.open();
             SendMessage.SendHead(MessageFlags.AUDIO_WINDOWS_SHOW,socket);
         }catch (Exception e) {
-            mic.stop();
-            mic.close();
-            SendMessage.SendHead(MessageFlags.AUDIO_ERROR,socket);
+            return false;
         }
+        return true;
     }
-    public void close() throws IOException {
+    public void close(){
         run = false;
         mic.stop();
         mic.close();

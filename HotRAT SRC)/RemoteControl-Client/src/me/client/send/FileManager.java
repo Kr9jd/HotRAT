@@ -31,7 +31,9 @@ public class FileManager {
 
     public void DeleteFile(String filename) {
         File file = new File(filename);
-        file.delete();
+        if(!file.delete()) {
+            SendMessage.SendHead(MessageFlags.FILE_DELETE_ERROR,socket);
+        }
     }
 
     public void OpenFile(String filename) {
