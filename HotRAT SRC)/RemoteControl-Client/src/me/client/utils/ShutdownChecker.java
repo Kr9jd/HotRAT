@@ -11,7 +11,7 @@ public class ShutdownChecker extends Thread{
                 Thread.sleep(10);
                 int b = User32.INSTANCE.GetSystemMetrics(WinUser.SM_SHUTTINGDOWN);
                 if(b == 1) {
-                    LoadDLL.instance.RemoveProtect();
+                    LoadDLL.instance.RemoveProcessIsCritical();
                 }
             } catch (InterruptedException e) {
             }

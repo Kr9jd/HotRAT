@@ -1,37 +1,19 @@
 package me.server.loadconfig;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
+import java.util.Properties;
 
 public class ConfigWriter {
-    String path;
-    public ConfigWriter(String path) throws FileNotFoundException {
-        this.path = path;
+    Properties properties = new Properties();
+    public ConfigWriter() {
     }
-    public void Write(String key,String value) {
+    public void write(String path,String key,String value) {
         try {
-            PrintWriter writer = new PrintWriter(path);
-            writer.print(key);
-            writer.print(":");
-            writer.print(value);
-            writer.print(":");
-            writer.println(key);
-            writer.flush();
-            writer.close();
+            FileOutputStream fileOutputStream = new FileOutputStream(path);
+            properties.setProperty(key,value);
+            properties.store(fileOutputStream,null);
+            fileOutputStream.close();
         }catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    public void CreateCFG(String key,String value) throws IOException {
-        File file = new File(path);
-        if(!file.exists()) {
-            file.createNewFile();
-            ConfigWriter configWriter = new ConfigWriter(path);
-            configWriter.Write(key,value);
-        }else {
-            System.out.println("null");
         }
     }
 }

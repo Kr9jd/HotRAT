@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.net.Socket;
 
-public class ReceiveMessage extends Thread{
+public class ReceiveMessage{
     String IP;
     Socket socket;
     File file;
@@ -31,9 +31,7 @@ public class ReceiveMessage extends Thread{
         this.socket = socket;
         this.IP = IP;
     }
-    JLabel label;
-    @Override
-    public void run() {
+    public void start() {
         try {
             while (true) {
                 Thread.sleep(1);

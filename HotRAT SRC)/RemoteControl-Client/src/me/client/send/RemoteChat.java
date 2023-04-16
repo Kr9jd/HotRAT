@@ -20,6 +20,7 @@ public class RemoteChat {
     Socket socket;
     public RemoteChat(Socket socket)throws Exception{
         this.socket = socket;
+        SendMessage.SendHead(MessageFlags.SHOW_REMOTECHAT,socket);
         jWindow = new JDialog();
         jta = new JTextArea();
         jWindow.setAlwaysOnTop(true);

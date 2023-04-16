@@ -25,7 +25,7 @@ public class RegisterManager {
     InputStream inputStream3 = FileManager.class.getClassLoader().getResourceAsStream("me/resources/delete.png");
     InputStream inputStream4 = FileManager.class.getClassLoader().getResourceAsStream("me/resources/create.png");
     InputStream inputStream5 = FileManager.class.getClassLoader().getResourceAsStream("me/resources/dword.png");
-    InputStream inputStream6 = FileManager.class.getClassLoader().getResourceAsStream("me/resources/5.png");
+    InputStream inputStream6 = FileManager.class.getClassLoader().getResourceAsStream("me/resources/7.png");
     Image fileimage = ImageIO.read(inputStream);
     Image fileimage1 = ImageIO.read(inputStream1);
     Image fileimage2 = ImageIO.read(inputStream2);

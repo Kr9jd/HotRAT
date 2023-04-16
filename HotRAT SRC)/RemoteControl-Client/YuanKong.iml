@@ -11,7 +11,6 @@
     <orderEntry type="library" name="bridj-0.7.0" level="project" />
     <orderEntry type="library" name="webcam-capture-0.3.12" level="project" />
     <orderEntry type="library" name="slf4j-api-1.7.5" level="project" />
-    <orderEntry type="library" name="commons-io-2.11.0" level="project" />
     <orderEntry type="library" name="jna-5.12.1" level="project" />
     <orderEntry type="library" name="jna-platform-5.12.1" level="project" />
     <orderEntry type="library" name="KotlinJavaRuntime" level="project" />

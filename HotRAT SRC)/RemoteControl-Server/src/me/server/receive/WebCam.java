@@ -18,7 +18,7 @@ public class WebCam {
     public WebCam(Socket socket, String IP) throws Exception{
         JDialog frame = new JDialog();
         frame.setTitle("\\\\" + IP + "-" + "视频监控");
-        InputStream inputStream = Server.class.getClassLoader().getResourceAsStream("me/resources/cam.png");
+        InputStream inputStream = Server.class.getClassLoader().getResourceAsStream("me/resources/8.png");
         Image image = ImageIO.read(inputStream);
         frame.setIconImage(image);
         JPanel jPanel = new JPanel();

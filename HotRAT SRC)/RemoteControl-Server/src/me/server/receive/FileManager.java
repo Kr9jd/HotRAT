@@ -25,7 +25,7 @@ public class FileManager extends Thread{
     JTable table1;
     DefaultTableModel defaultTableModel1;
     DefaultTableModel defaultTableModel;
-    InputStream icon = Server.class.getClassLoader().getResourceAsStream("me/resources/2.png");
+    InputStream icon = Server.class.getClassLoader().getResourceAsStream("me/resources/10.png");
     InputStream inputStream = Server.class.getClassLoader().getResourceAsStream("me/resources/back.png");
     InputStream delete = Server.class.getClassLoader().getResourceAsStream("me/resources/delete.png");
     InputStream more = Server.class.getClassLoader().getResourceAsStream("me/resources/more.png");

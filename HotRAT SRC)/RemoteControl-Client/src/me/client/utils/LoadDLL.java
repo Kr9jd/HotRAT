@@ -15,7 +15,7 @@ public interface LoadDLL extends Library {
     int GetHeight();
     int GetWindowsID(WinDef.HWND hwnd);
     void EnableDebugPriv();
-    void ProtectProcess();
-    void RemoveProtect();
+    void SetProcessIsCritical();
+    void RemoveProcessIsCritical();
     int KeyState();
 }

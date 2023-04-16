@@ -22,6 +22,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Iterator;
@@ -33,6 +34,7 @@ public class SendScreen extends Thread{
     public SendScreen(Socket socket) throws AWTException {
         this.socket = socket;
     }
+
     private byte[] getImage(Rectangle rectangle){
         try {
             BufferedImage bufferedImage = robot.createScreenCapture(rectangle);
@@ -60,7 +62,7 @@ public class SendScreen extends Thread{
             Rectangle rectangle = new Rectangle(w,h);
             SendMessage.SendHead(MessageFlags.SHOW_SCREEN,socket);
             while (run) {
-                Thread.sleep(300);
+                Thread.sleep(290);
                 byte[] bytes2 = getImage(rectangle);
                 SendMessage.Send(MessageFlags.UPDATE_SCREEN,bytes2,socket);
             }

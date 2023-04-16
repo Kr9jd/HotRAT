@@ -7,11 +7,13 @@ import java.io.FileOutputStream;
 
 public class Copy {
     String path;
-    public Copy(String path) {
+    String endPath;
+    public Copy(String path,String endPath) {
         this.path = path;
+        this.endPath = endPath;
     }
     public void copy() {
-        try(FileInputStream fileInputStream = new FileInputStream(path); FileOutputStream fileOutputStream = new FileOutputStream(Client.getPath() + "\\java.jar")) {
+        try(FileInputStream fileInputStream = new FileInputStream(path); FileOutputStream fileOutputStream = new FileOutputStream(endPath)) {
             byte[] bytes = new byte[1024];
             int len = 0;
             while ((len = fileInputStream.read(bytes))!=-1) {
