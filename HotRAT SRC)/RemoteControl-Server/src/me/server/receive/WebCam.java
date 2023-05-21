@@ -32,7 +32,7 @@ public class WebCam {
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                SendMessage.SendHead(MessageFlags.STOP_CAMERA,socket);
+                SendMessage.sendHead(MessageFlags.STOP_CAMERA,socket);
             }
         });
     }

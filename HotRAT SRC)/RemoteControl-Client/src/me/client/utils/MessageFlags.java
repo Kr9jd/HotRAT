@@ -100,5 +100,7 @@ public class MessageFlags {
     public static final byte LAN_ACCESS_POST = 96;
     public static final byte LAN_ACCESS_ERROR = 97;
     public static final byte LAN_ACCESS_OPEN = 98;
+    public static final byte CLIENT_LOGIN = 99;
     public static final byte RELIEVE = 100;
+    public static final byte CLIENT_HEAD = 101;
 }

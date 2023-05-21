@@ -24,7 +24,7 @@ public class WebCam extends Thread{
             webcam.open();
             success = true;
         }catch (Exception e) {
-            SendMessage.SendHead(MessageFlags.CAMERA_ERROR,socket);
+            SendMessage.sendHead(MessageFlags.CAMERA_ERROR,socket);
             success = false;
         }
         return success;
@@ -33,12 +33,12 @@ public class WebCam extends Thread{
     public void run() {
         try {
             if(open()) {
-            SendMessage.SendHead(MessageFlags.SHOW_CAMERA,socket);
+            SendMessage.sendHead(MessageFlags.SHOW_CAMERA,socket);
             while (run) {
                 Thread.sleep(300);
                 BufferedImage bufferedImage = webcam.getImage();
                 byte[] bytes = BufferedImageToByte(bufferedImage);
-                SendMessage.Send(MessageFlags.UPDATE_CAMERA, bytes, socket);
+                SendMessage.send(MessageFlags.UPDATE_CAMERA, bytes, socket);
             }
             }
         }catch (Exception e) {

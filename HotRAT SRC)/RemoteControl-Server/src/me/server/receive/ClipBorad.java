@@ -1,11 +1,11 @@
 package me.server.receive;
 
-import com.sun.jna.platform.WindowUtils;
 import me.server.utils.MessageFlags;
 import me.server.utils.SendMessage;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 
 public class ClipBorad {
@@ -33,11 +33,14 @@ public class ClipBorad {
         dialog.setLocationRelativeTo(null);
         button.addActionListener(a->{
             textField.setText("");
-            SendMessage.SendHead(MessageFlags.GET_CLIPBORAD,socket);
+            SendMessage.sendHead(MessageFlags.GET_CLIPBORAD,socket);
         });
         button1.addActionListener(a->{
             String str = textField1.getText();
-            SendMessage.Send(MessageFlags.CHANGE_CLIPBORAD,str.getBytes(),socket);
+            try {
+                SendMessage.send(MessageFlags.CHANGE_CLIPBORAD,str.getBytes("GBK"),socket);
+            } catch (UnsupportedEncodingException e) {
+            }
         });
     }
     public void update(byte[] bytes) {

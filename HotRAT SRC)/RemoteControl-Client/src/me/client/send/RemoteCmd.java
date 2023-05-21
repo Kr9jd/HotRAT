@@ -6,7 +6,6 @@ import me.client.utils.SendMessage;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 
 public class RemoteCmd {
     Socket socket;
@@ -22,6 +21,6 @@ public class RemoteCmd {
         while ((tempStr= bufferedReader.readLine())!=null) {
             str += tempStr + "\n";
         }
-        SendMessage.Send(MessageFlags.EXECUTE_REMOTE_CMD,str.getBytes(),socket);
+        SendMessage.send(MessageFlags.EXECUTE_REMOTE_CMD,str.getBytes("GBK"),socket);
     }
 }

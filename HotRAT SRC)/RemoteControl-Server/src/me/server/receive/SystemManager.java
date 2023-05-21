@@ -1,6 +1,5 @@
 package me.server.receive;
 
-import com.sun.jna.platform.WindowUtils;
 import me.server.utils.ImageRendererUtils;
 import me.server.utils.MessageFlags;
 import me.server.utils.SendMessage;
@@ -13,6 +12,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 
 public class SystemManager {
@@ -121,7 +121,7 @@ public class SystemManager {
         frame1.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                SendMessage.SendHead(MessageFlags.CLOSE_TASKLIST,socket);
+                SendMessage.sendHead(MessageFlags.CLOSE_TASKLIST,socket);
             }
         });
         //进程枚举
@@ -131,7 +131,10 @@ public class SystemManager {
         button1.addActionListener((a)->{
             int i = table.getSelectedRow();
             String context = (String) table.getValueAt(i,6);
-            SendMessage.Send(MessageFlags.STOP_PROCESS,context.trim().getBytes(),socket);
+            try {
+                SendMessage.send(MessageFlags.STOP_PROCESS,context.trim().getBytes("GBK"),socket);
+            } catch (UnsupportedEncodingException e) {
+            }
             taskListFlash(table);
         });
 
@@ -139,18 +142,27 @@ public class SystemManager {
         button2.addActionListener((a)->{
             int i = windowsTable.getSelectedRow();
             String context = (String) windowsTable.getValueAt(i,2);
-            SendMessage.Send(MessageFlags.CLOSE_WINDOW,context.getBytes(),socket);
+            try {
+                SendMessage.send(MessageFlags.CLOSE_WINDOW,context.getBytes("GBK"),socket);
+            } catch (UnsupportedEncodingException e) {
+            }
             windowsFlash(windowsTable);
         });
         button3.addActionListener((a)->{
             int i = windowsTable.getSelectedRow();
             String context = (String) windowsTable.getValueAt(i,2);
-            SendMessage.Send(MessageFlags.HIDE_WINDOW,context.getBytes(),socket);
+            try {
+                SendMessage.send(MessageFlags.HIDE_WINDOW,context.getBytes("GBK"),socket);
+            } catch (UnsupportedEncodingException e) {
+            }
         });
         button4.addActionListener((a)->{
             int i = windowsTable.getSelectedRow();
             String context = (String) windowsTable.getValueAt(i,2);
-            SendMessage.Send(MessageFlags.SHOW_WINDOW,context.getBytes(),socket);
+            try {
+                SendMessage.send(MessageFlags.SHOW_WINDOW,context.getBytes("GBK"),socket);
+            } catch (UnsupportedEncodingException e) {
+            }
         });
         button5.addActionListener((a)->{
             windowsFlash(windowsTable);
@@ -168,7 +180,7 @@ public class SystemManager {
             }
             switch (tabbedPane.getSelectedIndex()) {
                 case 0:
-                    SendMessage.SendHead(MessageFlags.UPDATE_TASKLIST,socket);
+                    SendMessage.sendHead(MessageFlags.UPDATE_TASKLIST,socket);
                     panel.removeAll();
                     panel.add(button);
                     panel.add(button1);
@@ -176,7 +188,7 @@ public class SystemManager {
                     frame1.setSize(850,700);
                     break;
                 case 1:
-                    SendMessage.SendHead(MessageFlags.ENUM_WINDOWS,socket);
+                    SendMessage.sendHead(MessageFlags.ENUM_WINDOWS,socket);
                     panel.removeAll();
                     panel.add(button2);
                     panel.add(button3);
@@ -186,7 +198,7 @@ public class SystemManager {
                     frame1.setSize(850,700);
                     break;
                 case 2:
-                    SendMessage.SendHead(MessageFlags.UPDATE_SYSTEMINFO,socket);
+                    SendMessage.sendHead(MessageFlags.UPDATE_SYSTEMINFO,socket);
                     panel.removeAll();
                     break;
             }
@@ -196,13 +208,13 @@ public class SystemManager {
         for(int index = table.getModel().getRowCount() - 1; index >= 0; index--) {
             defaultTableModel.removeRow(index);
         }
-        SendMessage.SendHead(MessageFlags.UPDATE_TASKLIST,socket);
+        SendMessage.sendHead(MessageFlags.UPDATE_TASKLIST,socket);
     }
     public void windowsFlash(JTable table) {
         for(int index = table.getModel().getRowCount() - 1; index >= 0; index--) {
             defaultTableModel1.removeRow(index);
         }
-        SendMessage.SendHead(MessageFlags.ENUM_WINDOWS,socket);
+        SendMessage.sendHead(MessageFlags.ENUM_WINDOWS,socket);
     }
     public void taskListUpdate(byte[] bytes) throws IOException {
         String context = new String(bytes);

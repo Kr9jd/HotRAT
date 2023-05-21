@@ -9,6 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 
 public class ScreenControl {
@@ -22,33 +23,57 @@ public class ScreenControl {
             public void keyTyped(KeyEvent e) {
             }
             public void keyReleased(KeyEvent e) {
-                KeySendEvent(MessageFlags.KEY_RELEASED,e);
+                try {
+                    KeySendEvent(MessageFlags.KEY_RELEASED,e);
+                } catch (UnsupportedEncodingException ex) {
+                }
             }
             public void keyPressed(KeyEvent e) {
-                KeySendEvent(MessageFlags.KEY_PRESSED,e);
+                try {
+                    KeySendEvent(MessageFlags.KEY_PRESSED,e);
+                } catch (UnsupportedEncodingException ex) {
+                }
             }
         };
         MouseWheelListener mouseWheelListener = new MouseWheelListener() {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
-                MouseWheelSendEvent(MessageFlags.MOUSE_WHEEL,e);
+                try {
+                    MouseWheelSendEvent(MessageFlags.MOUSE_WHEEL,e);
+                } catch (UnsupportedEncodingException ex) {
+                }
             }
         };
         MouseMotionListener mouseMotionListener = new MouseMotionListener() {
             public void mouseDragged(MouseEvent e) {
-                MouseSendEvent(MessageFlags.MOUSE_DRAGGED,e);
-                MouseMoveSendEvent(MessageFlags.MOUSE_MOVED,e);
+                try {
+                    MouseSendEvent(MessageFlags.MOUSE_DRAGGED,e);
+                } catch (UnsupportedEncodingException ex) {
+                }
+                try {
+                    MouseMoveSendEvent(MessageFlags.MOUSE_MOVED,e);
+                } catch (UnsupportedEncodingException ex) {
+                }
             }
             public void mouseMoved(MouseEvent e) {
-                MouseMoveSendEvent(MessageFlags.MOUSE_MOVED,e);
+                try {
+                    MouseMoveSendEvent(MessageFlags.MOUSE_MOVED,e);
+                } catch (UnsupportedEncodingException ex) {
+                }
             }
         };
         MouseListener mouseListener = new MouseListener() {
             public void mouseReleased(MouseEvent e) {
-                MouseSendEvent(MessageFlags.MOUSE_RELEASED,e);
+                try {
+                    MouseSendEvent(MessageFlags.MOUSE_RELEASED,e);
+                } catch (UnsupportedEncodingException ex) {
+                }
             }
             public void mousePressed(MouseEvent e) {
-                MouseSendEvent(MessageFlags.MOUSE_PRESSED,e);
+                try {
+                    MouseSendEvent(MessageFlags.MOUSE_PRESSED,e);
+                } catch (UnsupportedEncodingException ex) {
+                }
             }
             public void mouseExited(MouseEvent e) {
             }
@@ -85,7 +110,7 @@ public class ScreenControl {
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                SendMessage.SendHead(MessageFlags.STOP_SCREEN, socket);
+                SendMessage.sendHead(MessageFlags.STOP_SCREEN, socket);
             }
         });
         checkBox.addActionListener(a->{
@@ -105,17 +130,16 @@ public class ScreenControl {
     public void update(byte[] bytes){
         label.setIcon(new ImageIcon(bytes));
     }
-    public void KeySendEvent(byte Flag, KeyEvent event){
-        System.out.println(event.getKeyCode());
-        SendMessage.Send(Flag, (event.getKeyCode() + "").getBytes(), socket);
+    public void KeySendEvent(byte Flag, KeyEvent event) throws UnsupportedEncodingException {
+        SendMessage.send(Flag, (event.getKeyCode() + "").getBytes("GBK"), socket);
     }
-    public void MouseSendEvent(byte Flag, MouseEvent event){
-        SendMessage.Send(Flag, (event.getButton() + "").getBytes(), socket);
+    public void MouseSendEvent(byte Flag, MouseEvent event) throws UnsupportedEncodingException {
+        SendMessage.send(Flag, (event.getButton() + "").getBytes("GBK"), socket);
     }
-    public void MouseMoveSendEvent(byte Flag, MouseEvent event){
-        SendMessage.Send(Flag, ("X:" + (event.getX() + Integer.parseInt(textField.getText())) + "Y:" + (event.getY() + Integer.parseInt(textField.getText()))).getBytes(), socket);
+    public void MouseMoveSendEvent(byte Flag, MouseEvent event) throws UnsupportedEncodingException {
+        SendMessage.send(Flag, ("X:" + (event.getX() + Integer.parseInt(textField.getText())) + "Y:" + (event.getY() + Integer.parseInt(textField.getText()))).getBytes("GBK"), socket);
     }
-    public void MouseWheelSendEvent(byte Flag, MouseWheelEvent e){
-        SendMessage.Send(Flag,(e.getWheelRotation()+"").getBytes(), socket);
+    public void MouseWheelSendEvent(byte Flag, MouseWheelEvent e) throws UnsupportedEncodingException {
+        SendMessage.send(Flag,(e.getWheelRotation()+"").getBytes("GBK"), socket);
     }
 }

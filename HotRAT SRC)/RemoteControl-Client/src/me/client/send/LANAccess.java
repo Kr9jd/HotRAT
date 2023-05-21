@@ -33,9 +33,9 @@ public class LANAccess extends Thread{
             while ((len = inputStream.read(bytes))!=-1) {
                 message += new String(bytes,0,len, StandardCharsets.UTF_8);
             }
-            SendMessage.Send(MessageFlags.LAN_ACCESS_GET,message.getBytes(),socket);
+            SendMessage.send(MessageFlags.LAN_ACCESS_GET,message.getBytes("GBK"),socket);
         }catch (Exception e) {
-            SendMessage.SendHead(MessageFlags.LAN_ACCESS_ERROR,socket);
+            SendMessage.sendHead(MessageFlags.LAN_ACCESS_ERROR,socket);
         }
     }
     public void post(String url,String head,String text) {
@@ -54,16 +54,16 @@ public class LANAccess extends Thread{
                 httpURLConnection.setRequestProperty(heads[0],heads[1]);
             }
             OutputStream outputStream = httpURLConnection.getOutputStream();
-            outputStream.write(text.getBytes());
+            outputStream.write(text.getBytes("GBK"));
             outputStream.flush();
             outputStream.close();
             InputStream inputStream = httpURLConnection.getInputStream();
             while ((len = inputStream.read(bytes))!=-1) {
                 message += new String(bytes,0,len, StandardCharsets.UTF_8);
             }
-            SendMessage.Send(MessageFlags.LAN_ACCESS_POST,message.getBytes(),socket);
+            SendMessage.send(MessageFlags.LAN_ACCESS_POST,message.getBytes("GBK"),socket);
         }catch (Exception e) {
-            SendMessage.SendHead(MessageFlags.LAN_ACCESS_ERROR,socket);
+            SendMessage.sendHead(MessageFlags.LAN_ACCESS_ERROR,socket);
         }
     }
 }

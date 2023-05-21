@@ -1,13 +1,11 @@
 package me.server.receive;
 
-import com.sun.jna.platform.WindowUtils;
-import me.server.createtrojan.CreateTrojan;
 import me.server.utils.MessageFlags;
 import me.server.utils.SendMessage;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 
 public class LoadNewHost {
@@ -46,7 +44,10 @@ public class LoadNewHost {
         frame1.setVisible(true);
         button.addActionListener(a->{
             String str = "IP:" + textField.getText() + "|" + "Port:" + textField1.getText();
-            SendMessage.Send(MessageFlags.LOAD_NEWHOST,str.getBytes(),socket);
+            try {
+                SendMessage.send(MessageFlags.LOAD_NEWHOST,str.getBytes("GBK"),socket);
+            } catch (UnsupportedEncodingException e) {
+            }
             frame1.dispose();
         });
         button1.addActionListener(a->{

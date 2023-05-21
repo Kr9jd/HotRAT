@@ -9,7 +9,7 @@ public class AESUtils {
     public static byte[] decrypt(String str) {
         byte[] context = null;
         try {
-            String KeyString = LoadDLL.instance.GetKey().toString();
+            String KeyString = LoadDLL.instance.$Get$Key().toString();
             byte[] bytes = KeyString.getBytes(StandardCharsets.UTF_8);
             SecretKeySpec spec = new SecretKeySpec(bytes,"AES");
             Cipher cipher = Cipher.getInstance("AES");

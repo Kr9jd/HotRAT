@@ -12,5 +12,6 @@
     <orderEntry type="library" name="jna-5.12.1" level="project" />
     <orderEntry type="library" name="jna-platform-5.12.1" level="project" />
     <orderEntry type="library" name="JTattoo-1.6.13" level="project" />
+    <orderEntry type="library" name="asm-9.5" level="project" />
   </component>
 </module>

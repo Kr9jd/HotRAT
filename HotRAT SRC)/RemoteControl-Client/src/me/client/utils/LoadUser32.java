@@ -9,4 +9,5 @@ public interface LoadUser32 extends Library {
     LoadUser32 instance= (LoadUser32) Native.loadLibrary("User32.dll", LoadUser32.class);
     int MessageBoxW(WinDef.HWND hwnd, WString context,WString title,int i);
     WinDef.BOOL SetWindowTextW(WinDef.HWND hwnd,WString wString);
+    WinDef.SHORT GetKeyState(int i);
 }

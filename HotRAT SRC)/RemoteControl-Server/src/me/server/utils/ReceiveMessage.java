@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.Socket;
+import java.util.Random;
 
 public class ReceiveMessage{
     String IP;
@@ -37,6 +38,7 @@ public class ReceiveMessage{
                 Thread.sleep(1);
                     byte[] head = SendMessage.receiveHead(dataInputStream);
                     int len;
+                    long token;
                     byte[] context;
                     switch (head[0]) {
                         case MessageFlags.HEARTPACK:
@@ -108,13 +110,23 @@ public class ReceiveMessage{
                             file.createNewFile();
                             break;
                             case MessageFlags.FILE_PREPARE:
-                                fileOutputStream = new FileOutputStream(file);
+                                len = SendMessage.receiveLength(dataInputStream);
+                                token = SendMessage.receiveToken(dataInputStream);
+                                if(token == fileManage.Token) {
+                                    System.out.println(token);
+                                    context = SendMessage.receiveContext(dataInputStream,len);
+                                    fileOutputStream = new FileOutputStream(file);
+                                }
                                 break;
                         case MessageFlags.FILE_DOWNLOAD:
                             len = SendMessage.receiveLength(dataInputStream);
+                            token = SendMessage.receiveToken(dataInputStream);
                             try {
-                                context = SendMessage.receiveContext(dataInputStream, len);
-                                fileOutputStream.write(context);
+                                if(token == fileManage.Token) {
+                                    System.out.println(token);
+                                    context = SendMessage.receiveContext(dataInputStream, len);
+                                    fileOutputStream.write(context);
+                                }
                             } catch (Exception e) {
                             }
                             break;
@@ -122,6 +134,7 @@ public class ReceiveMessage{
                                 len = SendMessage.receiveLength(dataInputStream);
                                 context = SendMessage.receiveContext(dataInputStream, len);
                                 String str = new String(context) + "$下载";
+                                fileManage.Token = new Random().nextLong();
                                 fileManage.arrayList.remove(str);
                                 fileManage.flashTable();
                                 fileOutputStream.close();

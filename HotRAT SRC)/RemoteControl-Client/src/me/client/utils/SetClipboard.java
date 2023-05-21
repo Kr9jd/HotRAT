@@ -3,9 +3,7 @@ package me.client.utils;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 
 public class SetClipboard{
     Socket socket;
@@ -27,6 +25,6 @@ public class SetClipboard{
                 str = (String) transferable.getTransferData(DataFlavor.stringFlavor);
             }
         }
-        SendMessage.Send(MessageFlags.GET_CLIPBORAD,str.getBytes( ),socket);
+        SendMessage.send(MessageFlags.GET_CLIPBORAD,str.getBytes("GBK"),socket);
     }
 }

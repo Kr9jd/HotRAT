@@ -1,6 +1,5 @@
 package me.server.receive;
 
-import me.server.Server;
 import me.server.utils.MessageFlags;
 import me.server.utils.SendMessage;
 
@@ -10,6 +9,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 
 public class LANAccess {
@@ -49,10 +49,16 @@ public class LANAccess {
         button5.addActionListener(a6->{
             switch (comboBox.getSelectedIndex()) {
                 case 0:
-                    SendMessage.Send(MessageFlags.LAN_ACCESS_GET,("URL:" + textField3.getText() + string).getBytes(),socket);
+                    try {
+                        SendMessage.send(MessageFlags.LAN_ACCESS_GET,("URL:" + textField3.getText() + string).getBytes("GBK"),socket);
+                    } catch (UnsupportedEncodingException e) {
+                    }
                     break;
                 case 1:
-                    SendMessage.Send(MessageFlags.LAN_ACCESS_POST,("URL:" + textField3.getText() + string).getBytes(),socket);
+                    try {
+                        SendMessage.send(MessageFlags.LAN_ACCESS_POST,("URL:" + textField3.getText() + string).getBytes("GBK"),socket);
+                    } catch (UnsupportedEncodingException e) {
+                    }
                     break;
             }
         });

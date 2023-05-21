@@ -6,8 +6,8 @@ import me.server.utils.SendMessage;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 
 public class MessageBox {
     public MessageBox(Socket socket) {
@@ -55,52 +55,88 @@ public class MessageBox {
                 case 0:
                     switch (comboBox1.getSelectedIndex()) {
                         case 0:
-                            SendMessage.Send(MessageFlags.MESSAGEBOX_ERROR_YNC, context.getBytes(), socket);
+                            try {
+                                SendMessage.send(MessageFlags.MESSAGEBOX_ERROR_YNC, context.getBytes("GBK"), socket);
+                            } catch (UnsupportedEncodingException e) {
+                            }
                             break;
                         case 1:
-                            SendMessage.Send(MessageFlags.MESSAGEBOX_ERROR_YN, context.getBytes(), socket);
+                            try {
+                                SendMessage.send(MessageFlags.MESSAGEBOX_ERROR_YN, context.getBytes("GBK"), socket);
+                            } catch (UnsupportedEncodingException e) {
+                            }
                             break;
                         case 2:
-                            SendMessage.Send(MessageFlags.MESSAGEBOX_ERROR_Y, context.getBytes(), socket);
+                            try {
+                                SendMessage.send(MessageFlags.MESSAGEBOX_ERROR_Y, context.getBytes("GBK"), socket);
+                            } catch (UnsupportedEncodingException e) {
+                            }
                             break;
                     }
                         break;
                         case 1:
                             switch (comboBox1.getSelectedIndex()) {
                                 case 0:
-                                    SendMessage.Send(MessageFlags.MESSAGEBOX_INFORMATION_YNC, context.getBytes(), socket);
+                                    try {
+                                        SendMessage.send(MessageFlags.MESSAGEBOX_INFORMATION_YNC, context.getBytes("GBK"), socket);
+                                    } catch (UnsupportedEncodingException e) {
+                                    }
                                     break;
                                 case 1:
-                                    SendMessage.Send(MessageFlags.MESSAGEBOX_INFORMATION_YN, context.getBytes(), socket);
+                                    try {
+                                        SendMessage.send(MessageFlags.MESSAGEBOX_INFORMATION_YN, context.getBytes("GBK"), socket);
+                                    } catch (UnsupportedEncodingException e) {
+                                    }
                                     break;
                                 case 2:
-                                    SendMessage.Send(MessageFlags.MESSAGEBOX_INFORMATION_Y, context.getBytes(), socket);
+                                    try {
+                                        SendMessage.send(MessageFlags.MESSAGEBOX_INFORMATION_Y, context.getBytes("GBK"), socket);
+                                    } catch (UnsupportedEncodingException e) {
+                                    }
                                     break;
                             }
                             break;
                 case 2:
                     switch (comboBox1.getSelectedIndex()) {
                         case 0:
-                            SendMessage.Send(MessageFlags.MESSAGEBOX_WARNING_YNC, context.getBytes(), socket);
+                            try {
+                                SendMessage.send(MessageFlags.MESSAGEBOX_WARNING_YNC, context.getBytes("GBK"), socket);
+                            } catch (UnsupportedEncodingException e) {
+                            }
                             break;
                         case 1:
-                            SendMessage.Send(MessageFlags.MESSAGEBOX_WARNING_YN, context.getBytes(), socket);
+                            try {
+                                SendMessage.send(MessageFlags.MESSAGEBOX_WARNING_YN, context.getBytes("GBK"), socket);
+                            } catch (UnsupportedEncodingException e) {
+                            }
                             break;
                         case 2:
-                            SendMessage.Send(MessageFlags.MESSAGEBOX_WARNING_Y, context.getBytes(), socket);
+                            try {
+                                SendMessage.send(MessageFlags.MESSAGEBOX_WARNING_Y, context.getBytes("GBK"), socket);
+                            } catch (UnsupportedEncodingException e) {
+                            }
                             break;
                     }
                     break;
                 case 3:
                     switch (comboBox1.getSelectedIndex()) {
                         case 0:
-                            SendMessage.Send(MessageFlags.MESSAGEBOX_QUESTION_YNC, context.getBytes(), socket);
+                            try {
+                                SendMessage.send(MessageFlags.MESSAGEBOX_QUESTION_YNC, context.getBytes("GBK"), socket);
+                            } catch (UnsupportedEncodingException e) {
+                            }
                             break;
                         case 1:
-                            SendMessage.Send(MessageFlags.MESSAGEBOX_QUESTION_YN, context.getBytes(), socket);
+                            try {
+                                SendMessage.send(MessageFlags.MESSAGEBOX_QUESTION_YN, context.getBytes("GBK"), socket);
+                            } catch (UnsupportedEncodingException e) {
+                            }
                             break;
                         case 2:
-                            SendMessage.Send(MessageFlags.MESSAGEBOX_QUESTION_Y, context.getBytes(), socket);
+                            try {
+                                SendMessage.send(MessageFlags.MESSAGEBOX_QUESTION_Y, context.getBytes("GBK"), socket);
+                            } catch (UnsupportedEncodingException e) {
+                            }
                             break;
                     }
                     break;

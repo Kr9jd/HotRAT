@@ -43,7 +43,7 @@ public class Audio {
             @Override
             public void windowClosing(WindowEvent e) {
                 try {
-                    SendMessage.SendHead(MessageFlags.AUDIO_CLOSE,socket);
+                    SendMessage.sendHead(MessageFlags.AUDIO_CLOSE,socket);
                     auline.close();
                 }catch (Exception e1) {
                 }

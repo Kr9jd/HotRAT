@@ -8,9 +8,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -20,7 +18,7 @@ public class RemoteChat {
     Socket socket;
     public RemoteChat(Socket socket)throws Exception{
         this.socket = socket;
-        SendMessage.SendHead(MessageFlags.SHOW_REMOTECHAT,socket);
+        SendMessage.sendHead(MessageFlags.SHOW_REMOTECHAT,socket);
         jWindow = new JDialog();
         jta = new JTextArea();
         jWindow.setAlwaysOnTop(true);
@@ -56,7 +54,7 @@ public class RemoteChat {
                 jta.append(date + "\n");
                 jta.append("我: " + jtf.getText() + "\n");
                 jtf.setText("");
-                SendMessage.Send(MessageFlags.SEND_REMOTECHAT,chat.getBytes(),socket);
+                SendMessage.send(MessageFlags.SEND_REMOTECHAT,chat.getBytes("GBK"),socket);
             }catch (Exception e) {
             }
         });

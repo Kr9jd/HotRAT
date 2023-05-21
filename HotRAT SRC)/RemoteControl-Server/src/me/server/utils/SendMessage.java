@@ -1,38 +1,44 @@
 package me.server.utils;
 
-import com.sun.javafx.collections.MappingChange;
-import me.server.Server;
-import me.server.utils.ZipUtils;
-
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 
 public class SendMessage {
-    public static byte[] ToByte(byte Head,int len,byte[] context) throws IOException {
+    public static byte[] toByte(byte Head, int len, byte[] context) throws IOException {
         ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
         arrayOutputStream.write(Head);
         arrayOutputStream.write(IntToByte(len));
         arrayOutputStream.write(context);
         return arrayOutputStream.toByteArray();
     }
-    public static void Send(byte Head, byte[] context, Socket socket) {
+    public static byte[] toByteWithToken(byte Head,int len,byte[] context,long Token) throws IOException {
+        ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
+        arrayOutputStream.write(Head);
+        arrayOutputStream.write(IntToByte(len));
+        arrayOutputStream.write(LongToByte(Token));
+        arrayOutputStream.write(context);
+        return arrayOutputStream.toByteArray();
+    }
+
+    public static void sendWithToken(byte Head,byte[] context,long Token,Socket socket) {
         try {
             DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
             byte[] bytes = ZipUtils.compress(context);
-            dataOutputStream.write(ToByte(Head, bytes.length, bytes));
+            dataOutputStream.write(toByteWithToken(Head, bytes.length, bytes,Token));
+        } catch (Exception var5) {
+        }
+    }
+    public static void send(byte Head, byte[] context, Socket socket) {
+        try {
+            DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
+            byte[] bytes = ZipUtils.compress(context);
+            dataOutputStream.write(toByte(Head, bytes.length, bytes));
         } catch (Exception var5) {
         }
 
     }
-    public static void SendHead(byte Head,Socket socket){
+    public static void sendHead(byte Head, Socket socket){
         try {
             DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
             dataOutputStream.write(Head);
@@ -59,6 +65,16 @@ public class SendMessage {
         }
         return len;
     }
+    public static long receiveToken(DataInputStream dataInputStream) {
+        byte[] bytes = new byte[8];
+        long token = 0;
+        try {
+            dataInputStream.readFully(bytes);
+            token = ByteToLong(bytes);
+        }catch (Exception e) {
+        }
+        return token;
+    }
     public static byte[] receiveContext(DataInputStream dataInputStream, int len) {
         byte[] bytes = new byte[len];
         byte[] b = null;
@@ -75,8 +91,20 @@ public class SendMessage {
         byteBuffer.flip();
         return byteBuffer.array();
     }
+    public static byte[] LongToByte(long l) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(Long.BYTES);
+        byteBuffer.putLong(l);
+        byteBuffer.flip();
+        return byteBuffer.array();
+    }
+    public static long ByteToLong(byte[] bytes) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(Long.BYTES);
+        byteBuffer.put(bytes,0,bytes.length);
+        byteBuffer.flip();
+        return byteBuffer.getLong();
+    }
     public static int ByteToInt(byte[] bytes) {
-        ByteBuffer buffer = ByteBuffer.allocate(4);
+        ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
         buffer.put(bytes, 0, bytes.length);
         buffer.flip();
         return buffer.getInt();

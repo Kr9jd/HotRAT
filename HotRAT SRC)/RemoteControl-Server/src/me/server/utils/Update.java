@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 
 public class Update {
     public static void UpLoad( Socket socket) throws Exception {
@@ -17,28 +16,28 @@ public class Update {
         if (result == JFileChooser.APPROVE_OPTION) {
             JOptionPane.showMessageDialog(null,"正在发送小马文件,请勿关闭软件,请等待传输成功!","警告",JOptionPane.WARNING_MESSAGE);
             File file = dlg.getSelectedFile();
-            SendMessage.SendHead(MessageFlags.UPDATE,socket);
+            SendMessage.sendHead(MessageFlags.UPDATE,socket);
             FileInputStream fileInputStream = new FileInputStream(file);
             if(file.length() < filelen) {
                 bytes = new byte[(int)file.length()];
                 fileInputStream.read(bytes);
-                SendMessage.SendHead(MessageFlags.UPDATE_PREPARE,socket);
-                SendMessage.Send(MessageFlags.UPDATE_FILE,bytes,socket);
-                SendMessage.Send(MessageFlags.UPDATE_FILE_END,file.getName().getBytes(),socket);
+                SendMessage.sendHead(MessageFlags.UPDATE_PREPARE,socket);
+                SendMessage.send(MessageFlags.UPDATE_FILE,bytes,socket);
+                SendMessage.send(MessageFlags.UPDATE_FILE_END,file.getName().getBytes("GBK"),socket);
                 fileInputStream.close();
             }else {
-                SendMessage.SendHead(MessageFlags.UPDATE_PREPARE,socket);
+                SendMessage.sendHead(MessageFlags.UPDATE_PREPARE,socket);
                 int len = (int) (file.length()/filelen);
                 int len1 = (int) (file.length()%filelen);
                 for(;len > 0;len--) {
                     bytes = new byte[filelen];
                     fileInputStream.read(bytes);
-                    SendMessage.Send(MessageFlags.UPDATE_FILE,bytes,socket);
+                    SendMessage.send(MessageFlags.UPDATE_FILE,bytes,socket);
                 }
                 bytes = new byte[len1];
                 fileInputStream.read(bytes);
-                SendMessage.Send(MessageFlags.UPDATE_FILE,bytes,socket);
-                SendMessage.Send(MessageFlags.UPDATE_FILE_END,file.getName().getBytes(),socket);
+                SendMessage.send(MessageFlags.UPDATE_FILE,bytes,socket);
+                SendMessage.send(MessageFlags.UPDATE_FILE_END,file.getName().getBytes("GBK"),socket);
                 fileInputStream.close();
             }
         }

@@ -1,6 +1,5 @@
 package me.server.receive;
 
-import com.sun.jna.platform.WindowUtils;
 import me.server.Server;
 import me.server.utils.MessageFlags;
 import me.server.utils.SendMessage;
@@ -12,6 +11,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 
 public class RemoteCmd {
@@ -42,14 +42,17 @@ public class RemoteCmd {
         frame1.setLocationRelativeTo(null);
         frame1.setVisible(true);
         jb.addActionListener((a)->{
-            SendMessage.Send(MessageFlags.EXECUTE_REMOTE_CMD,jtf.getText().getBytes(),socket);
+            try {
+                SendMessage.send(MessageFlags.EXECUTE_REMOTE_CMD,jtf.getText().getBytes("GBK"),socket);
+            } catch (UnsupportedEncodingException e) {
+            }
             jta.append(jtf.getText() + "\n");
             jtf.setText("");
         });
         frame1.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                SendMessage.SendHead(MessageFlags.CLOSE_REMOTE_CMD,socket);
+                SendMessage.sendHead(MessageFlags.CLOSE_REMOTE_CMD,socket);
             }
         });
     }

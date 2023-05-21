@@ -1,6 +1,5 @@
 package me.server.receive;
 
-import me.server.Server;
 import me.server.utils.ImageRendererUtils;
 import me.server.utils.MessageFlags;
 import me.server.utils.SendMessage;
@@ -15,8 +14,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 
 public class RegisterManager {
     InputStream inputStream = FileManager.class.getClassLoader().getResourceAsStream("me/resources/directory.png");
@@ -145,28 +144,31 @@ public class RegisterManager {
         dialog.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                SendMessage.SendHead(MessageFlags.CLOSE_REGIDTER,socket);
+                SendMessage.sendHead(MessageFlags.CLOSE_REGIDTER,socket);
             }
         });
         jComboBox.addActionListener(a->{
             flash();
             textField.setText("");
-            switch (jComboBox.getSelectedIndex()) {
-                case 0:
-                    SendMessage.Send(MessageFlags.REGIDTER_QUERY_ROOT_KEY, (Integer.MIN_VALUE + "").getBytes(),socket);
-                    break;
-                case 1:
-                    SendMessage.Send(MessageFlags.REGIDTER_QUERY_ROOT_KEY, (-2147483647 + "").getBytes(),socket);
-                    break;
-                case 2:
-                    SendMessage.Send(MessageFlags.REGIDTER_QUERY_ROOT_KEY, (-2147483646+ "").getBytes(),socket);
-                    break;
-                case 3:
-                    SendMessage.Send(MessageFlags.REGIDTER_QUERY_ROOT_KEY, (-2147483645 + "").getBytes(),socket);
-                    break;
-                case 4:
-                    SendMessage.Send(MessageFlags.REGIDTER_QUERY_ROOT_KEY, (-2147483643 + "").getBytes(),socket);
-                    break;
+            try {
+                switch (jComboBox.getSelectedIndex()) {
+                    case 0:
+                        SendMessage.send(MessageFlags.REGIDTER_QUERY_ROOT_KEY, (Integer.MIN_VALUE + "").getBytes("GBK"),socket);
+                        break;
+                    case 1:
+                        SendMessage.send(MessageFlags.REGIDTER_QUERY_ROOT_KEY, (-2147483647 + "").getBytes("GBK"),socket);
+                        break;
+                    case 2:
+                        SendMessage.send(MessageFlags.REGIDTER_QUERY_ROOT_KEY, (-2147483646+ "").getBytes("GBK"),socket);
+                        break;
+                    case 3:
+                        SendMessage.send(MessageFlags.REGIDTER_QUERY_ROOT_KEY, (-2147483645 + "").getBytes("GBK"),socket);
+                        break;
+                    case 4:
+                        SendMessage.send(MessageFlags.REGIDTER_QUERY_ROOT_KEY, (-2147483643 + "").getBytes("GBK"),socket);
+                        break;
+                }
+            }catch (Exception e) {
             }
         });
         table.addMouseListener(new MouseAdapter() {
@@ -188,8 +190,11 @@ public class RegisterManager {
                     for(int index = table1.getModel().getRowCount() - 1; index >= 0; index--) {
                         defaultTableModel1.removeRow(index);
                     }
-                        SendMessage.Send(MessageFlags.REGIDTER_QUERY_KEY,(getValue(jComboBox.getSelectedIndex()) + ":" +textField.getText()).getBytes(),socket);
+                    try {
+                        SendMessage.send(MessageFlags.REGIDTER_QUERY_KEY,(getValue(jComboBox.getSelectedIndex()) + ":" +textField.getText()).getBytes("GBK"),socket);
+                    } catch (UnsupportedEncodingException ex) {
                     }
+                }
                 }
         });
         table1.addMouseListener(new MouseAdapter() {
@@ -209,19 +214,31 @@ public class RegisterManager {
             }
             if(textField.getText().lastIndexOf("\\") == -1) {
                 textField.setText("");
-                SendMessage.Send(MessageFlags.REGIDTER_QUERY_ROOT_KEY, (getValue(jComboBox.getSelectedIndex())+"").getBytes(), socket);
+                try {
+                    SendMessage.send(MessageFlags.REGIDTER_QUERY_ROOT_KEY, (getValue(jComboBox.getSelectedIndex())+"").getBytes("GBK"), socket);
+                } catch (UnsupportedEncodingException e) {
+                }
             }else {
                 String path = textField.getText().substring(0, textField.getText().lastIndexOf("\\"));
                 textField.setText(path);
-                SendMessage.Send(MessageFlags.REGIDTER_QUERY_KEY, (getValue(jComboBox.getSelectedIndex()) + ":" +textField.getText()).getBytes(), socket);
+                try {
+                    SendMessage.send(MessageFlags.REGIDTER_QUERY_KEY, (getValue(jComboBox.getSelectedIndex()) + ":" +textField.getText()).getBytes("GBK"), socket);
+                } catch (UnsupportedEncodingException e) {
+                }
             }
         });
         button1.addActionListener(a->{
             if(table1.getSelectedRow() != -1) {
-                SendMessage.Send(MessageFlags.REGIDTER_DELETE_VALUE,(getValue(jComboBox.getSelectedIndex()) + "!" + textField.getText() + "!" + (String) table1.getValueAt(table1.getSelectedRow(),1)).getBytes(),socket);
+                try {
+                    SendMessage.send(MessageFlags.REGIDTER_DELETE_VALUE,(getValue(jComboBox.getSelectedIndex()) + "!" + textField.getText() + "!" + (String) table1.getValueAt(table1.getSelectedRow(),1)).getBytes("GBK"),socket);
+                } catch (UnsupportedEncodingException e) {
+                }
             }
             if(table.getSelectedRow() != -1) {
-                SendMessage.Send(MessageFlags.REGIDTER_DELETE_KEY,(getValue(jComboBox.getSelectedIndex()) + "!" + textField.getText()+"\\"+(String) table.getValueAt(table.getSelectedRow(),1)).getBytes(),socket);
+                try {
+                    SendMessage.send(MessageFlags.REGIDTER_DELETE_KEY,(getValue(jComboBox.getSelectedIndex()) + "!" + textField.getText()+"\\"+(String) table.getValueAt(table.getSelectedRow(),1)).getBytes("GBK"),socket);
+                } catch (UnsupportedEncodingException e) {
+                }
             }
             for(int index = table.getModel().getRowCount() - 1; index >= 0; index--) {
                 defaultTableModel.removeRow(index);
@@ -250,11 +267,17 @@ public class RegisterManager {
                             typename = "REG_DWORD";
                             break;
                     }
-                    SendMessage.Send(MessageFlags.REGIDTER_CREATE_VALUE,(getValue(jComboBox.getSelectedIndex()) + "!" + textField.getText() + "!" + name + "!" + typename).getBytes(),socket);
+                    try {
+                        SendMessage.send(MessageFlags.REGIDTER_CREATE_VALUE,(getValue(jComboBox.getSelectedIndex()) + "!" + textField.getText() + "!" + name + "!" + typename).getBytes("GBK"),socket);
+                    } catch (UnsupportedEncodingException e) {
+                    }
                     break;
                 case "创建键":
                     String valueName = JOptionPane.showInputDialog(null,"输入新键名","创建",JOptionPane.QUESTION_MESSAGE);
-                    SendMessage.Send(MessageFlags.REGIDTER_CREATE_KEY,(getValue(jComboBox.getSelectedIndex()) + "!" + textField.getText() + "!" + valueName).getBytes(),socket);
+                    try {
+                        SendMessage.send(MessageFlags.REGIDTER_CREATE_KEY,(getValue(jComboBox.getSelectedIndex()) + "!" + textField.getText() + "!" + valueName).getBytes("GBK"),socket);
+                    } catch (UnsupportedEncodingException e) {
+                    }
                     break;
             }
             for(int index = table.getModel().getRowCount() - 1; index >= 0; index--) {
@@ -312,7 +335,10 @@ public class RegisterManager {
         dialog.setSize(400,150);
         dialog.setLocationRelativeTo(null);
         button.addActionListener(a->{
-            SendMessage.Send(MessageFlags.REGIDTER_SET_VALUE,(hkey + "!" + path + "!" + value + "!" +type + "!" + textField1.getText()).getBytes(),socket);
+            try {
+                SendMessage.send(MessageFlags.REGIDTER_SET_VALUE,(hkey + "!" + path + "!" + value + "!" +type + "!" + textField1.getText()).getBytes("GBK"),socket);
+            } catch (UnsupportedEncodingException e) {
+            }
             for(int index = table.getModel().getRowCount() - 1; index >= 0; index--) {
                 defaultTableModel.removeRow(index);
             }
